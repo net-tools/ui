@@ -23,8 +23,8 @@ var sample = {
     {
         if ( sel.value == '1' )
         {
-            document.body.style.backgroundColor = '#040e23';
-            document.body.style.color = 'white';
+            document.body.style.backgroundColor = 'var(--ui-bgColor, white)';
+            document.body.style.color = 'var(--ui-color, black)';
         }
         else
         {
