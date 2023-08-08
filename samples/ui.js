@@ -4,7 +4,7 @@ var sample = {
     colorChange : function(sel)
     {
         var style = document.getElementById('colorStyle');
-        style.href = '../src/ui/ui.' + sel.value + '-theme.css';
+        style.href = '../src/ui.' + sel.value + '-theme.css';
     },
     
     
