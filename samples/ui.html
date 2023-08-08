@@ -29,6 +29,10 @@
             }
 
         }
+		
+		div.flex > div > h1 {
+			margin-top: 0;
+		}
 
     </style>
     
@@ -94,6 +98,7 @@
 
     <div id="output"></div>
 
+	
     <form class="uiForm" onsubmit="test.submit(this); return false;">
        
         <p class="sampleBox">
@@ -164,6 +169,164 @@
         <p class="sampleBox"><input type="submit"> <input type="reset"> <input type="button" value="Custom button"> <input type="button" disabled value="Disabled"> <input type="image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAkxJREFUeNqkU81rE1EQ/+2+NF+buLHmEmONRkvjNYFe/IDqxYMgCApejF56FS/xWK8FL54ET+JNpCLEf0DwJBSxPamtH9iQoNFu1Oz35jnzsgmKx75ldt785jfzZnb2aVJK7GVpoiUAzjGaILhOcu0/psQjkodqrysewtVQbccriMVH89mtL0uLhxfrzbPNM6zZZnzK+Wvp6nSJ21yBHMhSFtn03adX7dqxmlksFgVrthlnv6qU+XHnCThKVwk4R6fMVw9US7WjtWzWyCKwAxSMAti2vlulzW+bF4n3Hi7xMUkQ0TvCHenJe/BQMZPmbOdDB9YPC67jIpVOwSyYyCfys+S/IX/Lz1pKuwkRtzB6O4L8KruwcYVK3C0dLGXmqnOon6pD0zQ0TjdQma+gfKicYb/iEZ/jVAXyJzXjjr8q9WdaPSshQgFjvwFd1+EMHAx3h7D6VoKCTelKNTXpy+lAjlMLqwjxipzS873ID334gQ8hhNJsM85+5ik+x6kEAZap/5ckS7R/Z9u26+sURI9ICqXZZpz9zGM+x40TjNAi3aasQ9Jv+r3+wBc+AhFAz+hKs804+2NeO46jBPw100oMzOB892O350Zu6Cd9aDkNrNlmnP2Kx/zJFJBTwwRSWEEGa07oPN56vdXxQk9q+zSwZptx9ise83OT/yA//StPUF8tKjG/s71TjmaiCwsnF45svNj41N3uPqfT79Opv0i3/7lMuBTvIjRI1lWHBj0Cl8m7TCN7QPgTwoeEcukNknV1v9YktL1e5z8CDACTtTXxsB+GQwAAAABJRU5ErkJggg=="> </p>
         
    </form>
+	
+	
+	<hr>
+	
+	
+
+    <div class="flex">
+        
+        <div class="sampleBox">
+            <h1>uiList Total=H</h1>
+            <div id="divuilist">
+                
+                <table class="uiList" data-total='H'>
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                        <th>Column 3</th>
+                        <th>Total</th>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                </table>                
+            </div>
+        </div>
+
+
+        <div class="sampleBox">
+            <h1>uiList Total=V bottom</h1>
+            <div id="divuilist">
+                
+                <table class="uiList" data-total='V bottom'>
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                        <th>Column 3</th>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                    <tr>
+                        <td>jackpot!</td>
+                        <td>jackpot!</td>
+                        <td>jackpot!</td>
+                    </tr>
+                </table>                
+            </div>
+        </div>
+
+
+        <div class="sampleBox">
+            <h1>uiList Total=V top</h1>
+            <div id="divuilist">
+                
+                <table class="uiList" data-total='V top'>
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                        <th>Column 3</th>
+                    </tr>
+                    <tr>
+                        <td>jackpot!</td>
+                        <td>jackpot!</td>
+                        <td>jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                </table>                
+            </div>
+        </div>
+
+
+        <div class="sampleBox">
+            <h1>uiListSmall</h1>
+            <div id="divuilistsmall">
+                
+                <table class="uiList uiListSmall" data-total="H">
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                        <th>Column 3</th>
+                        <th>Total</th>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                </table>                
+            </div>
+        </div>
+	</div>
+	
 
 </body>
 </html>
