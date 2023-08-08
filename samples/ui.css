@@ -15,6 +15,7 @@ body {
 
 div#output {
     background-color: gainsboro;
+	color:black;
     border: 1px solid gray;
     font-family: Consolas, "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", Monaco, "Courier New", "monospace";
     min-height: 1.5em;
