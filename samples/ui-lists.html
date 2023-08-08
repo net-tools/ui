@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>UI lists</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="../src/ui.css">
+    <link rel="stylesheet" href="../src/ui.yellow-theme.css" id="colorStyle">
+    <link rel="stylesheet" href="ui.css">
+
+    <script src="../../js-core/src/js-core.js"></script>
+    <script src="ui.js"></script>
+
+    <style>
+        div.flex {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        div.flex > div {
+            width:45%;
+        }
+        
+        div.flex > div > h1 {
+            margin-top:0;
+        }
+        
+        @media screen and (max-width:1024px) {
+            div.flex > div {
+                width:100%;
+            }
+
+        }
+        
+    </style>
+    
+    <script>
+    
+    var test = {
+        
+    }
+    
+    </script>
+
+</head>
+
+<body>
+    
+    Color theme : <select onChange="sample.colorChange(this);" id="colorSelect">
+    </select>
+    -
+    Dark theme : <select name="darkTheme" onChange="sample.darkTheme(this);" id="darkThemeSelect">
+        <option selected value="0">No</option>
+        <option value="1">Yes</option>
+    </select>
+    
+    <hr>
+
+    <div id="output"></div>
+
+    <div class="flex">
+        
+        <div class="sampleBox">
+            <h1>uiList Total=H</h1>
+            <div id="divuilist">
+                
+                <table class="uiList" data-total='H'>
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                        <th>Column 3</th>
+                        <th>Total</th>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                </table>                
+            </div>
+        </div>
+
+
+        <div class="sampleBox">
+            <h1>uiList Total=V bottom</h1>
+            <div id="divuilist">
+                
+                <table class="uiList" data-total='V bottom'>
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                        <th>Column 3</th>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                    <tr>
+                        <td>jackpot!</td>
+                        <td>jackpot!</td>
+                        <td>jackpot!</td>
+                    </tr>
+                </table>                
+            </div>
+        </div>
+
+
+        <div class="sampleBox">
+            <h1>uiList Total=V top</h1>
+            <div id="divuilist">
+                
+                <table class="uiList" data-total='V top'>
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                        <th>Column 3</th>
+                    </tr>
+                    <tr>
+                        <td>jackpot!</td>
+                        <td>jackpot!</td>
+                        <td>jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                    </tr>
+                </table>                
+            </div>
+        </div>
+
+
+        <div class="sampleBox">
+            <h1>uiListSmall</h1>
+            <div id="divuilistsmall">
+                
+                <table class="uiList uiListSmall" data-total="H">
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                        <th>Column 3</th>
+                        <th>Total</th>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                    <tr>
+                        <td>123</td>
+                        <td>456</td>
+                        <td>789</td>
+                        <td>Jackpot!</td>
+                    </tr>
+                </table>                
+            </div>
+        </div>
+	</div>
+
+</body>
+</html>

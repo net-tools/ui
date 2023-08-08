@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>UI fields</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="../src/ui.css">
+    <link rel="stylesheet" href="../src/ui.yellow-theme.css" id="colorStyle">
+    <link rel="stylesheet" href="ui.css">
+
+    <script src="../../js-core/src/js-core.js"></script>
+    <script src="ui.js"></script>
+
+    <style>
+        form {
+            display:flex;
+            flex-wrap: wrap;
+        }
+
+        form p {
+            width:45%;
+        }
+        
+        
+        @media screen and (max-width:1024px) {
+            form p {
+                width:100%;
+            }
+
+        }
+
+    </style>
+    
+    <script>
+    
+    var test = {
+     
+        submit : function(form)
+        {
+            var inputs = [];
+            
+            for ( var i = 1 ; i <= 20 ; i++ )
+            {
+                var input = form.elements['input' + i];
+                
+                switch ( i )
+                {
+                    // select multiple
+                    case 6 : 
+                        var opts = [];
+                        for ( var o = 0 ; o < input.options.length ; o++ )
+                            if ( input.options[o].selected )
+                                opts.push(input.options[o].value);
+                        
+                        inputs.push(('input'+i) + '(select-multiple)=' + opts.join(';'));                        
+                        break;
+                        
+                    // radio
+                    case 10 :
+                        inputs.push(('input'+i) + '(radio)=' + input.value);
+                        break;
+                    // checkbox
+                    case 11 :
+                    case 12 :
+                        inputs.push(('input'+i) + input.title + '=' + (input.checked ? 'checked':''));
+                        break;
+                        
+                    default:
+                        inputs.push(('input'+i) + input.title + '=' + input.value);
+                }
+            }
+            
+            sample.output(inputs.join('\n'));
+        }
+        
+    }
+    
+    </script>
+
+</head>
+
+<body>
+    
+    Color theme : <select onChange="sample.colorChange(this);" id="colorSelect">
+    </select>
+    -
+    Dark theme : <select name="darkTheme" onChange="sample.darkTheme(this);" id="darkThemeSelect">
+        <option selected value="0">No</option>
+        <option value="1">Yes</option>
+    </select>
+    
+    <hr>
+
+    <div id="output"></div>
+
+    <form class="uiForm" onsubmit="test.submit(this); return false;">
+       
+        <p class="sampleBox">
+            <label>Text field : 
+                <input type="text" name="input1" title="(text)" value="default value"> 
+                <input type="text" name="input2" title="(disabled)" disabled value="disabled" style="width: 6em;"> 
+                <input type="text" name="input3" title="(readonly)" readonly value="readonly" style="width: 6em;">
+            </label>
+        </p>
+        
+        <p class="sampleBox"><label>Password field : <input type="password" name="input4" title="(password)" value="pwd"> </label></p>
+        
+        <p class="sampleBox"><label>Textarea field : <textarea name="input5" title="(textarea)" cols="30" rows="2">default value</textarea></label></p>
+        
+        <p class="sampleBox">
+            <label>
+                Select multiple item : 
+                <select multiple size="2" name="input6" title="(select-multiple)">
+                    <option selected value="1">value 1</option>    
+                    <option selected value="2">value 2</option>    
+                </select>
+            </label>
+        </p>
+        
+        <p class="sampleBox">
+            <label>
+                Select item : 
+                <select name="input7" title="(select)">
+                    <option></option>    
+                    <option selected value="1">value 1</option>    
+                    <option value="2">value 2</option>    
+                </select>
+            </label>
+        </p>
+        
+        <p class="sampleBox"><label>File field : <input type="file" value="" name="input8" title="(file)"></label></p>
+        
+        <p class="sampleBox"><label>Color field : <input type="color" value="#0000AA" name="input9" title="(color)"></label></p>
+                
+        <p class="sampleBox">
+            <label>Radio item n°1 : <input type="radio" value="r1" checked name="input10" title="(radio1)"></label>
+            &nbsp;&nbsp;&nbsp;
+            <label>Radio item n°2 : <input type="radio" value="r2" name="input10" title="(radio2)"></label>
+        </p>
+        
+        <p class="sampleBox">
+            <label>Checkbox n°1 : <input type="checkbox" value="c1" checked name="input11" title="(checkbox1)"></label>
+            &nbsp;&nbsp;&nbsp;
+            <label>Checkbox n°2 : <input type="checkbox" value="c2" name="input12" title="(checkbox2)"></label>
+        </p>
+        
+        <p class="sampleBox"><label>Date field (HTML5) : <input type="date" value="1978-04-27" name="input13" title="(date)"></label></p>
+        
+        <p class="sampleBox"><label>Time field (HTML5) : <input type="time" value="23:45:00" name="input14" title="(time)"></label></p>
+        
+        <p class="sampleBox"><label>Date/time field (HTML5) : <input type="datetime-local" value="1978-04-27T23:45:00" name="input15" title="(datetime-local)"></label></p>
+        
+        <p class="sampleBox"><label>Email field (HTML5) : <input type="email" value="user@domain.tld" name="input16" title="(email)"></label></p>
+        
+        <p class="sampleBox"><label>Month field (HTML5) : <input type="month" value="2017-06" name="input17" title="(month)"></label></p>
+        
+        <p class="sampleBox"><label>Week field (HTML5) : <input type="week" value="2017-W26" name="input18" title="(week)"></label></p>
+        
+        <p class="sampleBox"><label>Number field (HTML5) : <input type="number" value="123456" name="input19" title="(number)"></label></p>
+        
+        <p class="sampleBox"><label>Tel field (HTML5) : <input type="tel" value="0102030405" name="input20" title="(tel)"></label></p>
+        
+        <p class="sampleBox"><input type="submit"> <input type="reset"> <input type="button" value="Custom button"> <input type="button" disabled value="Disabled"> <input type="image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAkxJREFUeNqkU81rE1EQ/+2+NF+buLHmEmONRkvjNYFe/IDqxYMgCApejF56FS/xWK8FL54ET+JNpCLEf0DwJBSxPamtH9iQoNFu1Oz35jnzsgmKx75ldt785jfzZnb2aVJK7GVpoiUAzjGaILhOcu0/psQjkodqrysewtVQbccriMVH89mtL0uLhxfrzbPNM6zZZnzK+Wvp6nSJ21yBHMhSFtn03adX7dqxmlksFgVrthlnv6qU+XHnCThKVwk4R6fMVw9US7WjtWzWyCKwAxSMAti2vlulzW+bF4n3Hi7xMUkQ0TvCHenJe/BQMZPmbOdDB9YPC67jIpVOwSyYyCfys+S/IX/Lz1pKuwkRtzB6O4L8KruwcYVK3C0dLGXmqnOon6pD0zQ0TjdQma+gfKicYb/iEZ/jVAXyJzXjjr8q9WdaPSshQgFjvwFd1+EMHAx3h7D6VoKCTelKNTXpy+lAjlMLqwjxipzS873ID334gQ8hhNJsM85+5ik+x6kEAZap/5ckS7R/Z9u26+sURI9ICqXZZpz9zGM+x40TjNAi3aasQ9Jv+r3+wBc+AhFAz+hKs804+2NeO46jBPw100oMzOB892O350Zu6Cd9aDkNrNlmnP2Kx/zJFJBTwwRSWEEGa07oPN56vdXxQk9q+zSwZptx9ise83OT/yA//StPUF8tKjG/s71TjmaiCwsnF45svNj41N3uPqfT79Opv0i3/7lMuBTvIjRI1lWHBj0Cl8m7TCN7QPgTwoeEcukNknV1v9YktL1e5z8CDACTtTXxsB+GQwAAAABJRU5ErkJggg=="> </p>
+        
+   </form>
+
+</body>
+</html>
