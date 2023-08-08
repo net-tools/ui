@@ -1,0 +1,124 @@
+:root {
+	--ui-borderColor: lightgray;
+}
+
+
+
+
+
+/* page and misc styles */
+.uiPage{										
+	padding:15px 15px 15px 15px;
+}
+
+
+.clearfloat{
+	clear:both;
+}
+
+.uiHidden{
+	visibility:hidden;
+	display:none;
+}
+
+div.hr{											/* ruler style */
+	margin-top:10px;
+	margin-bottom:10px;
+	background-color: #CCCCCC;
+	color:#CCCCCC;
+	height:1px;
+}
+
+
+
+
+
+
+/* BUTTONS AND FORM FIELDS */
+.uiForm input, 
+.uiForm select,
+.uiForm label,
+.uiForm textarea {								
+	font-family: inherit;
+    outline:none;
+}
+
+
+.uiForm input, 
+.uiForm select,
+.uiForm textarea {								
+	font-size:  0.9em;
+}
+
+
+.uiForm label{									/* hand pointer for input labels */
+	cursor:pointer;
+}
+
+.uiForm input[type=button], 
+.uiForm input[type=reset], 
+.uiForm input[type=submit] {					/* graphic buttons style */
+	padding: 0px 10px;
+	height: 2em;
+}
+
+.uiForm input[type=image]{
+	background: none !important;
+	border: none !important;
+    box-shadow: none !important;
+}
+
+
+
+
+
+
+
+/* LISTS */
+table.uiList{
+    border-collapse: collapse;
+}
+
+.uiList td, .uiList th {
+	border-bottom:1px solid var(--ui-borderColor);
+	font-size: 0.9em;
+    padding:0.4em;
+}
+
+.uiList tr
+{
+	background-color:unset;
+}
+
+.uiList tr:nth-child(2n)
+{
+	background-color:whitesmoke;
+}
+
+.uiListSmall td{
+	font-size:0.8em;
+}
+
+.uiListSmall th{
+	font-size: 0.9em;
+}
+
+/* TOTAL COLUMN ON THE RIGHT, SUMMING EACH ROW COLUMNS */
+.uiList[data-total='H'] tr td:last-of-type, .uiList[data-total='H'] tr th:last-of-type
+{
+    border-left:2px solid gray;
+    background-color:var(--ui-themeBgColor);
+}
+
+/* TOTAL WITH TOP OR BOTTOM ROW, SUMMING EACH COLUMN FOR ALL ROWS */
+.uiList[data-total~='top'] tr:nth-child(2) td        /* discarding header top row */
+{
+    border-bottom:2px solid gray;
+    background-color:var(--ui-themeBgColor);
+}
+
+.uiList[data-total~='bottom'] tr:last-child td
+{
+    border-top:2px solid gray;
+    background-color:var(--ui-themeBgColor);
+}

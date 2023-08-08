@@ -1,0 +1,21 @@
+{
+    "name" : "net-tools/ui",
+	
+    "description" : "UI css and js for web projects",
+	
+	"type": "library",
+	
+	"require" : {
+	},
+	
+    "license" : "MIT",
+
+    "authors": [
+        {
+            "name": "Pierre",
+            "email": "dev@nettools.ovh",
+            "role": "Developer"
+        }
+    ]
+
+}
