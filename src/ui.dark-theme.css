@@ -116,3 +116,19 @@ table.uiList{
 	color:white;
 	border-top-color:black;
 }
+
+
+
+
+
+
+
+/* REQUEST FEEDBACK */
+.uiRequestFeedback{	
+    background-color:var(--ui-themeBgColor);	
+    border:8px solid cadetblue;	
+	color:white;
+}
+
+
+

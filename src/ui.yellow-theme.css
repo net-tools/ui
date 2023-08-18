@@ -75,3 +75,18 @@
 {
     background-color:gold;
 }
+
+
+
+
+
+
+
+/* REQUEST FEEDBACK */
+.uiRequestFeedback{	
+    background-color:var(--ui-themeBgColor);	
+    border:8px solid gold;	
+}
+
+
+

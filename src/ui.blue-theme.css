@@ -71,10 +71,25 @@
 
 
 
+
 /* LISTS */
 .uiList[data-total='H'] tr:nth-child(2n) td:last-of-type
 {
     background-color:dodgerblue;
     color: white;
 }
+
+
+
+
+
+
+
+/* REQUEST FEEDBACK */
+.uiRequestFeedback{	
+    background-color:var(--ui-themeBgColor);	
+    border:8px solid dodgerblue;	
+}
+
+
 

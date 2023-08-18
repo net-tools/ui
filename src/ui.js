@@ -74,8 +74,7 @@ nettools.ui.RequestFeedback = class extends nettools.jscore.RequestFeedback{
     abort()
     {
         this.hideFeedbackUI();
-        if ( this.abortMsg )
-            alert(this.abortMsg);
+        alert(nettools.ui.RequestFeedback.i18n.ABORT_MSG);
 
 		
 		// parent call
@@ -130,6 +129,15 @@ nettools.ui.RequestFeedback = class extends nettools.jscore.RequestFeedback{
 		}
     }
 }
+
+
+
+// i18n
+nettools.ui.RequestFeedback.i18n = {
+	ABORT_MSG : 'An error occured during request data upload';
+}
+
+
 
 
 
