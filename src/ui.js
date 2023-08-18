@@ -38,6 +38,7 @@ nettools.ui.RequestFeedback = class extends nettools.jscore.RequestFeedback{
 		super(onfeedback, onload, onabort);
 		
 		
+		params = params || {};
         this.context = params['context'] || document;
         this.loadMessage = params['loadmsg'];
 		
