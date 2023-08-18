@@ -39,7 +39,7 @@ nettools.ui.RequestFeedback = class extends nettools.jscore.RequestFeedback{
 		
 		
         this.context = params['context'] || document;
-        this.loadmsg = params['loadmsg'];
+        this.loadMessage = params['loadmsg'];
 		
 		this.node = null;
 	}
@@ -89,8 +89,8 @@ nettools.ui.RequestFeedback = class extends nettools.jscore.RequestFeedback{
     load()
     {
         this.hideFeedbackUI();
-        if ( this.loadMsg )
-            alert(this.loadMsg);
+        if ( this.loadMessage )
+            alert(this.loadMessage);
 
 
 		// parent call
