@@ -134,7 +134,7 @@ nettools.ui.RequestFeedback = class extends nettools.jscore.RequestFeedback{
 
 // i18n
 nettools.ui.RequestFeedback.i18n = {
-	ABORT_MSG : 'An error occured during request data upload';
+	ABORT_MSG : 'An error occured during request data upload'
 }
 
 
