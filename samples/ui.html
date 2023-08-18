@@ -128,7 +128,189 @@
 			);
             
             window.setTimeout(_pct, 250);
-        }
+        },
+		
+		
+     
+		filesUpload : function(btn)
+		{
+			var f1 = document.getElementById('file1');
+			var f2 = document.getElementById('file2');
+			
+            p = new nettools.ui.RequestFeedback(
+				{
+                    loadmsg : 'Upload ended !'
+                },
+
+				// onprogress, onload, onabort
+				function(pct){sample.output('Upload % : ' + pct);},
+				function(){sample.output('Upload complete !');},
+				null
+			);
+
+			
+			nettools.jscore.RequestHelper.filesUploadWithFeedback(
+				
+					// onload
+                    function(resp)
+                    {
+                        var r = nettools.jscore.xmlhttp.parseResponse(resp);
+                        sample.output('Files upload answered with : \n' + r);
+                    },
+				
+				
+					// progress UI
+					p, 
+
+				
+					// files
+					[f1, f2],
+				
+				
+					// url
+					'requestHelper-filesUpload.php',
+					
+				
+					// data
+					{
+						key1 : 'value1'
+					}
+				);
+		},
+		
+		
+		
+		filesUploadPromise : function(btn)
+		{
+			var f1 = document.getElementById('file1');
+			var f2 = document.getElementById('file2');
+			
+            p = new nettools.ui.RequestFeedback(
+				{
+                    loadmsg : 'Upload ended !'
+                },
+
+				// onprogress, onload, onabort
+				function(pct){sample.output('Upload % : ' + pct);},
+				function(){sample.output('Upload complete !');},
+				null
+			);
+
+			
+			nettools.jscore.RequestHelper.filesUploadWithFeedbackPromise(
+					// progress UI
+					p, 
+				
+				
+					// files
+					[f1, f2],
+				
+				
+					// url
+					'requestHelper-filesUploadPromise.php',
+					
+				
+					// data
+					{
+						key1 : 'value1'
+					}
+				
+				).then(function(r){
+                        sample.output('Files upload with Promise answered with : \n' + r.message);
+				});
+		},
+		
+		
+		
+		XmlHttpRequestWithFeedback : function()
+		{
+			var data = {
+				bigstring : 'x'.repeat(1*1024*1024)
+			}
+			
+			
+            p = new nettools.ui.RequestFeedback(
+				{
+                    loadmsg : 'Upload ended !'
+                },
+			
+				// onprogress, onload, onabort
+				function(pct){sample.output('Upload % : ' + pct);},
+				function(){sample.output('Upload complete !');},
+				null
+			);
+
+			
+			nettools.jscore.RequestHelper.sendWithFeedback(
+				
+					// onload
+                    function(resp)
+                    {
+                        var r = nettools.jscore.xmlhttp.parseResponse(resp);
+                        sample.output('XmlHttpRequest with feedback answered : \n' + r);
+                    },
+
+				
+					// progress UI
+					p,
+
+				
+					// form
+					null,
+				
+				
+					// url
+					'requestHelper-sendWithFeedback.php',
+					
+				
+					// data
+					data
+				);
+			
+		},
+		
+		
+		
+		XmlHttpRequestWithFeedbackPromise : function()
+		{
+			var data = {
+				bigstring : 'x'.repeat(1*1024*1024)
+			}
+						
+            p = new nettools.ui.RequestFeedback(
+				{
+                    loadmsg : 'Upload ended !'
+                },
+			
+				// onprogress, onload, onabort
+				function(pct){sample.output('Upload % : ' + pct);},
+				function(){sample.output('Upload complete !');},
+				null
+			);
+			
+			
+			nettools.jscore.RequestHelper.sendWithFeedbackPromise(
+					// progress UI
+					p,
+				
+				
+					// form
+					null,
+				
+				
+					// url
+					'requestHelper-sendWithFeedbackPromise.php',
+					
+				
+					// data
+					data				
+				).then(
+                    function(resp)
+                    {
+                        sample.output('XmlHttpRequest with feedback and Promise answered : \n' + resp.message);
+                    }
+				);			
+		}
         
     }
     
@@ -236,7 +418,12 @@
             <p><a href="javascript:void(0)" onclick="test.progress(false, true); return false;">Start progress abort 50%</a></p>
             <p><a href="javascript:void(0)" onclick="test.progress(false, false); return false;">Start progress 0-100%</a></p>
                
-        </div>
+            <p><a href="javascript:void(0)" onclick="test.XmlHttpRequestWithFeedback(); return false;">XmlHttpRequestWithFeedback</a></p>
+            <p><a href="javascript:void(0)" onclick="test.XmlHttpRequestWithFeedbackPromise(); return false;">XmlHttpRequestWithFeedbackPromise</a></p>
+            <p><input type="file" name="file1" id="file1"><input type="file" name="file2" id="file2"> : 
+				<input type="button" onclick="test.filesUpload(); return false;" value="Upload">
+				<input type="button" onclick="test.filesUploadPromise(); return false;" value="Upload(Promise)"></p>
+       </div>
 
 
         <div class="sampleBox">
