@@ -76,6 +76,57 @@
             }
             
             sample.output(inputs.join('\n'));
+        },
+		
+		
+		
+        progress : function(halt, abort)
+        {
+            var p;
+            var pct = 0;
+            
+            function _pct()
+            {
+                pct = pct + 10;
+                p.feedback(pct);
+                
+                
+                if ( halt && (pct == 50) )
+                    return;
+                
+                if ( abort && (pct == 50) )
+                {
+                    p.abort();
+                    p.hideFeedbackUI();
+                    return;
+                }
+                
+                if ( pct == 100 )
+                {
+                    p.load();
+                    p.hideFeedbackUI();
+                }
+                else
+                    window.setTimeout(_pct, 100);
+            }
+            
+            
+            
+            p = new nettools.ui.RequestFeedback(
+				
+				// other params
+				{
+					context : document,
+                    loadmsg : 'Process ended !'
+                },
+			
+				// onprogress, onload, onabort
+				function(pct){sample.output('Process % : ' + pct);},
+				function(){sample.output('Process complete !');},
+				null
+			);
+            
+            window.setTimeout(_pct, 300);
         }
         
     }
@@ -177,6 +228,16 @@
 
     <div class="flex">
         
+        <div class="sampleBox">
+            <h1>nettools.ui.RequestFeedback</h1>
+                
+            <p><a href="javascript:void(0)" onclick="test.progress(true, false); return false;">Start progress halt 50%</a></p>
+            <p><a href="javascript:void(0)" onclick="test.progress(false, true); return false;">Start progress abort 50%</a></p>
+            <p><a href="javascript:void(0)" onclick="test.progress(false, false); return false;">Start progress 0-100%</a></p>
+               
+        </div>
+
+
         <div class="sampleBox">
             <h1>uiList Total=H</h1>
             <div id="divuilist">

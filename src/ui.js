@@ -12,6 +12,130 @@ nettools.ui = nettools.ui || {};
 
 
 
+
+
+
+// ==== REQUEST FEEDBACK UI ====
+
+nettools.ui.RequestFeedback = class extends nettools.jscore.RequestFeedback{
+    
+    /**
+     * Display request upload feedback on screen with a simple percentage UI
+     *
+	 * @param object params Parameters as object litteral
+	 * @param function(int) onfeedback User callback called to notify the upload progress with an int as parameter (percentage done 0..100)
+	 * @param function() onload User callback called when upload is done
+	 * @param function() onabort User callback called if upload is aborted or if an error occured
+	 *
+	 * 'params' object litteral may include :
+     * {
+     *    HTMLDocument context : document context to create HTML tags into
+     *    string loadmsg : may contain any 'upload done' message to display
+     * }
+	 */
+    constructor(params, onfeedback, onload, onabort)
+    {
+		super(onfeedback, onload, onabort);
+		
+		
+        this.context = params['context'] || document;
+        this.loadmsg = params['loadmsg'];
+		
+		this.node = null;
+	}
+	
+
+
+    /**
+     * Display upload progress in GUI
+     *
+     * @param int pct
+     */
+    feedback(pct)
+    {
+        // create UI if not already done
+        this.createFeedbackUI();
+
+		
+        // update pct
+		if ( this.node.firstChild )
+        	this.node.firstChild.innerHTML = pct + '%';
+
+
+		// parent call
+		super.feedback(pct);
+    }
+
+
+
+    /**
+     * Cancel request
+     */
+    abort()
+    {
+        this.hideFeedbackUI();
+        if ( this.abortMsg )
+            alert(this.abortMsg);
+
+		
+		// parent call
+		super.abort();
+    }
+
+
+
+    /**
+     * React to upload end (this is not an "answer received" event !)
+     */
+    load()
+    {
+        this.hideFeedbackUI();
+        if ( this.loadMsg )
+            alert(this.loadMsg);
+
+
+		// parent call
+		super.load();
+    }
+
+
+
+    /**
+     * Creating UI
+     */
+    createFeedbackUI()
+    {
+        // if not already created
+		if ( !this.node )
+		{
+			this.node = this.context.createElement('div');
+			this.node.className = 'uiRequestFeedback';
+			this.node.innerHTML = '<span></span>';
+
+			this.context.body.insertBefore(this.node, this.context.body.firstChild);
+		}
+    }
+
+
+
+    /**
+     * Hide UI
+     */
+    hideFeedbackUI()
+    {		
+        if ( this.node )
+		{
+            this.node.parentNode.removeChild(this.node);
+			this.node = null;
+		}
+    }
+}
+
+
+
+
+
+
 // ==== SIZE ====
 	
 nettools.ui.Size = class {
