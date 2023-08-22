@@ -42,6 +42,19 @@ nettools.ui.SimpleMenu = class {
 	
 	
 	
+	/**
+	 * Static method to create a line item as an image
+	 *
+	 * @param string img
+	 * @return string Returns a string describing line item content as HTML formatting
+	 */
+	static image(img)
+	{
+		return `<img src="${img}">`;
+	}
+	
+	
+	
 	/** 
 	 * Get DOM node for menu
 	 *
@@ -206,6 +219,7 @@ nettools.ui.SimpleMenu = class {
 		}
 	}
 }
+
 
 
 
@@ -400,11 +414,11 @@ nettools.ui.FloatingMenu = class extends nettools.ui.SimpleMenu {
 	}
 }
 
+
 nettools.ui.FloatingMenu.TOP_LEFT = 1;
 nettools.ui.FloatingMenu.TOP_RIGHT = 2;
 nettools.ui.FloatingMenu.BOTTOM_LEFT = 3;
-nettools.ui.FloatingMenu.BOTTOM_RIGHT = 4;
-
+nettools.ui.FloatingMenu.BOTTOM_RIGHT = 4;	
 
 
 
