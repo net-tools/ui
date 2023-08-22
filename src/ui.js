@@ -45,12 +45,13 @@ nettools.ui.SimpleMenu = class {
 	/**
 	 * Static method to create a line item as an image
 	 *
-	 * @param string img
+	 * @param string title Image title (will be displayed as tooltip over image)
+	 * @param string img Path to image
 	 * @return string Returns a string describing line item content as HTML formatting
 	 */
-	static image(img)
+	static image(img, title = '')
 	{
-		return `<img src="${img}">`;
+		return `<img src="${img}" title="${title}">`;
 	}
 	
 	
