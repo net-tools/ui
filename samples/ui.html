@@ -31,10 +31,27 @@
 
         }
 		
-		div.flex > div > h1 {
-			margin-top: 0;
-		}
+        div.flex {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        div.flex > div {
+            width:45%;
+        }
+        
+        div.flex > div > h1 {
+            margin-top:0;
+        }
+        
+        
+        @media screen and (max-width:1024px) {
+            div.flex > div {
+                width:100%;
+            }
 
+        }
+        
     </style>
     
     <script>
@@ -310,6 +327,62 @@
                         sample.output('XmlHttpRequest with feedback and Promise answered : \n' + resp.message);
                     }
 				);			
+		},
+		
+		
+		
+		menu : function()
+		{
+			var m = new nettools.ui.SimpleMenu([
+				{ title: 'Line 1', disabled: false, id:'menuitem_1', onclick:function(event){ alert(event.target.id); } },
+				{ title: 'Line 2', disabled: false, id:'menuitem_2', url:{href:'https://www.google.fr', target:'_blank'} },
+				{ title: 'Line 3', disabled: true, url:{href:'https://www.google.fr'} },
+				null,
+				{ title: 'Line 4' },
+			]);
+			
+			
+			var div = document.getElementById('sampleMenu');
+
+			m.update();
+			
+			div.innerHTML = '';
+			div.appendChild(m.node);
+		},
+		
+		
+        
+		popupMenu : function()
+		{
+			var m = new nettools.ui.PopupMenu([
+				{ title: 'Line 1', disabled: false, id:'menuitem_1', onclick:function(event){ alert(event.target.id); } },
+				{ title: 'Line 2', disabled: false, id:'menuitem_2', url:{href:'https://www.google.fr', target:'_blank'} },
+				{ title: 'Line 3', disabled: true, url:{href:'https://www.google.fr'} },
+				null,
+				{ title: 'Line 4' },
+			]);
+			
+			
+			m.attach(document.getElementById('sampleMenuPopup'));
+		},
+		
+		
+        
+		floatingMenu : function()
+		{
+			var m = new nettools.ui.FloatingMenu([
+					{ title: 'Line 1', disabled: false, id:'menuitem_1', onclick:function(event){ alert(event.target.id); } },
+					{ title: 'Line 2', disabled: false, id:'menuitem_2', url:{href:'https://www.google.fr', target:'_blank'} },
+					{ title: 'Line 3', disabled: true, url:{href:'https://www.google.fr'} },
+					null,
+					{ title: 'Line 4' },
+				],
+												 
+				{
+					attachTo : document.getElementById('sampleMenuFloating'),
+					position : nettools.ui.FloatingMenu.BOTTOM_RIGHT
+				}
+			);
 		}
         
     }
@@ -574,6 +647,31 @@
                 </table>                
             </div>
         </div>
+		
+		
+
+
+        <div class="sampleBox">
+            <h1>uiSimpleMenu</h1>
+           	<div id="sampleMenu" style="width:200px; height:200px; border:1px solid black; background-color: silver;"></div>
+			<input type="button" value="Show menu" onclick="test.menu();">
+        </div>	
+		
+        <div class="sampleBox">
+            <h1>uiPopupMenu</h1>
+           	<div id="sampleMenuPopup" style="width:200px; height:200px; border:1px solid black; background-color: silver;">Right-click here</div>
+			<script>
+			test.popupMenu();
+			</script>
+        </div>		
+		
+        <div class="sampleBox">
+            <h1>uiFloatingMenu</h1>
+           	<div id="sampleMenuFloating" style="width:200px; height:200px; border:1px solid black; background-color: silver;"></div>
+			<script>
+			test.floatingMenu();
+			</script>
+        </div>		
 	</div>
 	
 
