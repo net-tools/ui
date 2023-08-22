@@ -360,10 +360,11 @@
 				{ title: 'Line 3', disabled: true, url:{href:'https://www.google.fr'} },
 				null,
 				{ title: 'Line 4' },
-			]);
-			
-			
-			m.attach(document.getElementById('sampleMenuPopup'));
+			],
+											 
+			{
+				attachTo : document.getElementById('sampleUiPopupMenu').querySelectorAll('div')
+			});
 		},
 		
 		
@@ -657,13 +658,13 @@
 			<input type="button" value="Show menu" onclick="test.menu();">
         </div>	
 		
-        <div class="sampleBox">
+        <div class="sampleBox" id="sampleUiPopupMenu">
             <h1>uiPopupMenu</h1>
            	<div id="sampleMenuPopup" style="width:200px; height:200px; border:1px solid black; background-color: silver;">Right-click here</div>
-			<script>
-			test.popupMenu();
-			</script>
         </div>		
+		<script>
+		test.popupMenu();
+		</script>
 		
         <div class="sampleBox">
             <h1>uiFloatingMenu</h1>

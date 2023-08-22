@@ -261,7 +261,7 @@ nettools.ui.PopupMenu = class extends nettools.ui.SimpleMenu {
 	 */
 	attach(node)
 	{
-		if ( node.constructor.name != 'Array' )
+		if ( (node.constructor.name != 'Array') && (node.constructor.name != 'NodeList') )
 			node = [node];
 		
 		var that = this;
