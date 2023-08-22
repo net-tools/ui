@@ -51,6 +51,7 @@ ul.uiSimpleMenu {
 	padding: 0;
 	list-style: none;
 	position: absolute;
+	z-index: 999;
 }
 
 ul.uiSimpleMenu li {
