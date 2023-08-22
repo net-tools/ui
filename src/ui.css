@@ -56,8 +56,7 @@ ul.uiSimpleMenu {
 
 ul.uiSimpleMenu li {
 	margin:0;
-    padding: 0.4em;
-    padding-right: 1.4em;
+    padding: 0.4em 0.5em;
     cursor: pointer;
 	text-wrap: nowrap;
 }
