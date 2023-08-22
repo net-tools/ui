@@ -154,6 +154,7 @@ nettools.ui.SimpleMenu = class {
 			// create 1 line in menu
 			var item = this._items[i];
 			var li = document.createElement('LI');
+			li.menuObject = this;
 			
 			
 			// if real menu item
@@ -227,6 +228,8 @@ nettools.ui.PopupMenu = class extends nettools.ui.SimpleMenu {
 	{
 		super(items, options);
 		
+		// no current target
+		this.target = null;
 		
 		// attaching popup to a single DOM element now ?
 		if ( this._options.attachTo )
@@ -277,6 +280,7 @@ nettools.ui.PopupMenu = class extends nettools.ui.SimpleMenu {
 	 */
 	onMouseLeave(event)
 	{
+		this.target = null;
 		this.destroy();
 	}
 	
@@ -307,6 +311,7 @@ nettools.ui.PopupMenu = class extends nettools.ui.SimpleMenu {
 	 */	 
 	popup(target, x, y)
 	{
+		this.target = target;
 		this.update();
 		
 		this._node.style.left = x-2 + 'px';

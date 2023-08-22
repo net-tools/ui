@@ -355,7 +355,7 @@
 		popupMenu : function()
 		{
 			var m = new nettools.ui.PopupMenu([
-				{ title: 'Line 1', disabled: false, id:'menuitem_1', onclick:function(event){ alert(event.target.id); } },
+				{ title: 'Line 1', disabled: false, id:'menuitem_1', onclick:function(event){ alert(event.target.id); alert(this.menuObject.target.id); } },
 				{ title: 'Line 2', disabled: false, id:'menuitem_2', url:{href:'https://www.google.fr', target:'_blank'} },
 				{ title: 'Line 3', disabled: true, url:{href:'https://www.google.fr'} },
 				null,
