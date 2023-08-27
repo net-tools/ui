@@ -447,6 +447,9 @@ nettools.ui.desktop.Tabs = class {
 		tab = document.getElementById(target.id + "Content");
 		tab.style.visibility = "visible";
 		tab.style.display = "block";
+		
+		
+		return tab;
     }    
     
 	
