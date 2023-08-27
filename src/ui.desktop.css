@@ -1,0 +1,100 @@
+.uiTabsLFlex {                            	/* landscape tabs, all tabs in first row ; top container */
+    display:flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+ul.uiTabsL, 								
+ul.uiTabsL li{								/* row with all tabs */
+    list-style:none;
+    padding:0px;
+    margin:0px;
+}
+
+ul.uiTabsL{
+    display: flex;
+}        
+
+ul.uiTabsL li{								/* one tab */
+    margin:0px 0.2em;
+    padding:0.2em 0.4em;
+    border-radius: 5px 5px 0px 0px;
+    margin-bottom: -1px;
+    border:1px solid gray;
+    text-shadow: 1px 1px 2px lightgray;
+    background-color: whitesmoke;
+    z-index: 99999;
+}
+
+ul.uiTabsL li:first-child{
+    margin-left:0.7em;
+}        
+
+div.uiTabsLContent{        				    /* content of current tab, below first row */
+    border:1px solid gray;
+    flex-grow: 1;  /* grow container in parent flex column */
+	padding: 10px;
+}
+
+ul.uiTabsL li:hover {
+    cursor: pointer;
+    border-color:gray;
+    background-color: white;
+    border-bottom-color: white;
+}
+
+ul.uiTabsL li.uiTabSelected{               /* current tab */
+    box-shadow: 1px -1px 6px rgba(0,0,0,0.6);
+}       
+
+
+
+
+
+.uiTabsPFlex {							    /* tabs in portrait orientation, one tab per line */
+	display:flex;
+	height:100vh; /* occuper tout l'espace */
+}
+
+ul.uiTabsP{									/* left margin with all tabs */
+	border-right:1px solid gray;
+	box-shadow:1px 0px 3px lightgray;
+    overflow-y: auto;
+	background-color:whitesmoke;
+	list-style:none;
+	font-size: 1em;
+	padding:0px;
+	margin:0px;
+}
+
+div.uiTabsPContent {						/* tab content */
+	flex-grow:1;							
+	display:flex;
+	padding: 10px;
+}
+
+div.uiTabsPContent > div{					/* node containing iframes, grow it to occupy max space */
+	flex-grow:1;
+}
+
+ul.uiTabsP li{								/* each tab */
+	text-decoration:none;
+	color: black;
+	margin:0px;
+    text-shadow: 1px 1px 2px lightgray;
+	padding:8px 6px;
+	border-top: 1px solid transparent;
+	border-bottom: 1px solid transparent;
+	cursor:pointer;
+}
+
+ul.uiTabsP li:hover{
+    background-color: white;
+	border-top: 1px solid gray;
+	border-bottom: 1px solid gray;
+}
+
+ul.uiTabsP li.uiTabSelected{				/* current tab */
+	border-top: 1px solid gray;
+	border-bottom: 1px solid gray;
+}

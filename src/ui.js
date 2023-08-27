@@ -731,3 +731,723 @@ nettools.ui.Size = class {
 	}
 }
 
+
+
+
+
+
+
+
+// ==== FORM BUILDER ====
+
+/**
+ * Create forms on the fly 
+ *
+ * `params` object litteral argument may define those properties :
+ *   - notice : string ; a string that will be displayed as first line
+ *   - fields : object ; an object litteral, each key defining a field (see below for allowed values)
+ *   - onsubmit : function(HTMLInputElement[]) ; a custom function to validate data before sending form ; must return an object litteral { statut:true/false, message:'', field:input_in_error}
+ *   - onsubmitpromise : function(HTMLInputElement[]) ; a custom function to validate data before sending form ; must return a Promise resolved with value {statut:true} or a rejected promise with value { statut:false, message:'', field:input_in_error}
+ *   - presubmit : function(HTMLInputElement[]) ; a custom function to make any updates to data before validation and submission (may be used to remove unwanted characters, etc.)
+ *   - submit : nettools.jscore.SubmitHandlers.Handler ; an object responsible for handling form submission
+ *   - cancel : function(HTMLForm, HTMLInputElement[]) ; a callback called if form is canceled
+ *   - target : HTMLForm ; form node to create field into, if not defined, a new form will be created
+ *   - name : string ; form name
+ *   - required : string[] ; defines mandatory fields as an array of string, each values being a key of `fields` object litteral property
+ *   - regexps : object ; an object litteral defining regular expressions to validate fields, as a couple (key,value), key being the field key as in `fields` object litteral property, value being a RegExp object
+ *   - notifier : function({statut:true/false, message:'', field:input}) ; defines a custom notification function to alert the user when form values are invalid 
+ *
+ * `params.fields` property is an object litteral whose keys are fields names and values another object litteral describing the field. Here are samples of field definitions
+ *  {
+ *  	name1 : {type:'text/tel/number/email', value:'val1', label:'label1', required:true, regexp:/.../, style:'width:200px;', newLineAfterLabel:true}, 
+ *  	name2 : {type:'select', value:'sel2', options:[ {value:'sel1', label:'labelsel1', className:'optclass'},...]},
+ *  	name2 : {type:'select', value:'sel2', options:[ 'selA', 'selB', ...]},
+ *  	name3 : {type:'text', value:'', newLineBefore:false, nolabel:true, required:true, placeholder:'2 letters', title:'Help here', className:'css'},
+ *  	name4 : {type:'checkbox', value:'1', label:'labcb', checked:true, newLineBefore:true},
+ *  	name5 : {type:'radio', items:[{name:'r1', label:'radio1', value:'val1', checked:true}, {name:'r2', value:'val2', label:'radio2'}]},
+ *  	name6 : {type:'hidden', value:'hidden'},
+ *  	name7 : {type:'textarea', value:'', newLineBefore:true, regexp:/abcd/},
+ *  	name8 : {type:'file', value:'', newLineBefore:true},
+ *  	name9 : {type:'image', value:'images/pic.jpg', label : 'Logo actif', title:'Image tooltip here'},
+ *		name10: {type:'date', value:'25/10/2018', dhtmlxPattern:'%d/%m/%y', dhtmlxLanguage:'fr'},
+ *		name11: {type:'text', value:'tmp', readonly:true}
+ *  }
+ */ 
+nettools.ui.FormBuilder = (function(){
+	
+	// ---- PRIVATE ----	
+	
+	function __preventDefault(event)
+	{
+		event.preventDefault();
+	}
+	
+	
+	
+	/** 
+	 * Create field label
+	 *
+	 * @param string name
+	 * @param string id
+	 * @param object field Field definition (a value of `fields` object litteral parameter)
+	 * @param bool after Is the label after or before the field ?
+	 * @return HTMLLabelElement
+	 */
+	function _createLabel(name, id, field, after)
+	{
+		var label = document.createElement('label');
+		label.innerHTML = (after ? ' ' : '') + nettools.jscore.firstUpperCase(field['label'] ? field.label : name) + (after ? '' : ' : ');
+		label.style.verticalAlign = 'top';
+		
+		if ( id )
+			label.setAttribute('for', id);
+
+		// if newline after label
+		if ( field['newLineAfterLabel'] )
+			label.innerHTML = label.innerHTML + '<br>';
+
+		return label;
+	}
+	
+	
+	
+	/**
+	 * Creating a field
+	 *
+	 * @param object field Field definition (a value of `fields` object litteral parameter)
+	 * @param string name Field name (key of `fields` object litteral parameter)
+	 * @param object params Object litteral describing dynamic form : pass the `params` parameter of `createForm` function
+	 * @return HTMLElement Returns a node with created field/label
+	 */
+	function _createField (field, name, params)
+	{
+		// no field type ? assume it's `text`
+		if ( (field['type'] === null) || (field['type'] === undefined) )
+			field.type = 'text';
+		
+			
+		// create line content
+		var div = document.createElement('span');
+		div.className = "FormBuilderField";
+		
+					
+		// create label before field (except for checkboxes and radio buttons, or if 'nolabel' flag
+		var unid = name + nettools.jscore.randomNumber();
+		if ( (field.type !== 'checkbox') && (field.type !== 'radio') && ((field['nolabel'] === undefined) || !field.nolabel) )
+			div.appendChild(_createLabel(name, unid, field));
+		
+		
+		// create field
+		switch ( field.type )
+		{
+			// type is 'select'
+			case "select" :
+				var e = document.createElement('select');
+				
+				// create list items provided in 'options' property
+				var opt = field['options'] || [];
+				var optl = opt.length;
+				for ( var i = 0 ; i < optl ; i++ )
+				{
+					// if label AND value are defined
+					if ( typeof opt[i] === 'object' )
+						e.options[i] = new Option(opt[i].label || opt[i].value, opt[i].value);
+					else
+						e.options[i] = new Option(opt[i], opt[i]);
+					
+					// if custom style on a row of the list, apply classname
+					if ( opt[i].className )
+						e.options[i].className = opt[i].className;
+				}
+					
+				break;
+				
+				
+			// textarea
+			case "textarea" :
+				var e = document.createElement('textarea');
+				break;
+				
+				
+			// image
+			case "image" :
+				var e = document.createElement('img');
+				e.src = field.value;
+				break;
+				
+				
+			// general case
+			case "text" :
+			default:
+				var e = document.createElement('input');
+				e.type = field.type;
+		}
+		
+
+		
+		// no issue properties
+		e.name = name;
+		e.id = unid;
+		e.setAttribute('data-formBuilderType', e.type);
+		
+		
+		if ( field['label'] )
+			e.title = field.label;
+
+		if ( field['title'] )	
+			e.title = field.title;	// we prefer 'title' property than the 'label' property
+			
+		if ( field['placeholder'] )
+			e.placeholder = field.placeholder;
+		
+		if ( field['readonly'] )
+			if ( field.type != 'text' )
+			{
+				e.onmousedown = __preventDefault;
+				e.setAttribute('readonly', 'readonly');
+			}
+			else
+				e.readOnly = field['readonly'];
+		
+		
+		
+		// if field type is 'date' and if dhtmlx calendar loaded
+		if ( ( field.type === 'date' ) && (typeof dhx == 'object') && (typeof dhx.Calendar == 'function') )
+		{
+			// revert field type to 'text'
+			e.type = 'text';
+
+			/*
+			// if specific date pattern
+			if ( field.dhtmlxPattern )
+			{
+				// définir regexp
+				switch ( field.dhtmlxPattern )
+				{
+					case com.ui.core.FormBuilder.DATE_PATTERN_DDMMYYYY:
+						field.regexp = nettools.jscore.validator.Patterns.DATEYYYY;
+						break;
+					case com.ui.core.FormBuilder.DATE_PATTERN_DDMMYY:
+						field.regexp = nettools.jscore.validator.Patterns.DATEYY;
+						break;
+					case com.ui.core.FormBuilder.DATE_PATTERN_YMD:
+						field.regexp = nettools.jscore.validator.Patterns.DATEYMD;
+						break;
+						
+					// si format %d %m %y non standard
+					default:
+						var reg_d = '(0[1-9]|[12][0-9]|3[01])';
+						var reg_m = '(0[1-9]|1[012])';
+						var reg_yy = '([0-9]{2})';
+						var reg_yyyy = '([0-9]{4})';
+						
+						field.regexp = new RegExp('^' + field.dhtmlxPattern
+																.replace(/%d/g, reg_d)
+																.replace(/%m/g, reg_m)
+																.replace(/%y/g, reg_yy)
+																.replace(/%Y/g, reg_yyyy)
+												  + '$');
+						break;
+				}
+			}*/
+		}
+				
+		
+		
+		// set value now because field type may have been changed before (such as with 'date' fields if dhtmlx-calendar loaded)
+		// and if we set a value not allowed (invalid format) for a 'date' field, the value will be blank
+		if ( field.type !== 'image' )
+			e.value = (field['value'] !== undefined) ? field.value : '';
+		
+
+		
+		// field validation : required / regular expression
+		params.required = params['required'] || [];
+		params.regexps = params['regexps'] || {};
+		if ( field['required'] )
+			params.required.push(name);
+
+		if ( field['regexp'] )
+			params.regexps[name] = field.regexp;
+		
+		
+		
+		// html5 attributes 
+		if ( params.required.indexOf(name) != -1 )
+			e.required = true;
+		if ( params.regexps[name] )
+		{
+			e.pattern = params.regexps[name].source;
+			
+			
+			// set title so that html5 validation may display correct strings
+			switch ( e.getAttribute('data-formBuilderType') )
+			{
+				case 'email' : e.title = 'Adresse de courrier électronique valide (pas d\'accents, pas d\'espaces)'; break;
+				case 'date' : 
+					switch ( e.pattern )
+					{
+						case nettools.jscore.validator.Patterns.DATEYY.source : e.title = 'Date valide au format (jj/mm/aa)'; break;
+						case nettools.jscore.validator.Patterns.DATEYYYY.source : e.title = 'Date valide au format (jj/mm/aaaa)'; break;
+						case nettools.jscore.validator.Patterns.DATEYMD.source : e.title = 'Date valide au format (aaaammjj)'; break;
+					}
+					break;
+				case 'tel' : e.title = 'Numéro de téléphone valide'; break;
+				case 'number' : e.title = 'Nombre entier valide'; break;
+			}
+			
+		}
+		
+		
+		// css class ?
+		if ( field['className'] )
+			e.className = field.className;
+		
+		
+		// css style
+		if ( field['style'] )
+		{
+			var styles = field.style.split(";");
+			for ( var s = 0 ; s < styles.length ; s++ )
+				// ignore last value
+				if ( nettools.jscore.trim(styles[s]) !== '' )
+				{
+					var st = styles[s].split(':');
+					var sty = nettools.jscore.trim(st[0]);
+					
+					// if composed property, capitalize first letter
+					var p = sty.indexOf('-');
+					if ( p != -1 )
+						sty = sty.substring(0, p) + sty.substr(p + 1, 1).toUpperCase() + sty.substr(p+2);
+					
+					// set style
+					e.style[sty] = nettools.jscore.trim(st[1]);
+				}
+		}
+
+		
+		// add created field to form
+		div.appendChild(e);
+
+		
+		// if checkbox or radio button, set 'checked' property
+		if ( (e.type === 'checkbox') || (e.type === 'radio') )
+		{
+			e.checked = field['checked'];
+			
+			// maybe append label AFTER field
+			if ( !field['nolabel'] )
+				div.appendChild(_createLabel(name, unid, field, true));
+		}
+		
+
+		// if hidden, set style required to hide the field
+		if ( e.type === 'hidden' )
+		{
+			div.style.visibility = "hidden";
+			div.style.display = "none";
+		}
+
+		
+		// return field (already added in form)
+		return div;
+	}
+	
+	
+	
+	/** 
+	 * Create form OK and Cancel buttons
+	 *
+	 * @param object params Object litteral describing dynamic form : pass the `params` parameter of `createForm` function
+	 * @return HTMLElement Returns the node containing the buttons
+	 */
+	 
+	function _createButtons(params)
+	{
+		var div = document.createElement('div');
+		var btn = document.createElement('input');
+		btn.type = 'submit';
+		btn.value = 'Valider';
+		btn.name = "submit_button";
+		div.appendChild(btn);
+
+		var btn = document.createElement('input');
+		btn.type = 'button';
+		btn.value = 'Annuler';
+		btn.name = "cancel_button";
+		btn.onclick = function(e)
+			{
+				if ( params['cancel'] && (typeof params.cancel === 'function') )
+					params.cancel(params.target, null, params['data']);
+			};
+		div.appendChild(btn);
+		
+		div.className="FormBuilderButtons";
+		return div;
+	}
+	
+
+	
+	
+	/**
+	 * Handle new lines 
+	 *
+	 * @param object field Field definition (a value of `fields` object litteral parameter)
+	 * @param HTMLElement container Node containing previously created fields, without any new lines
+	 * @param object params Object litteral describing dynamic form : pass the `params` parameter of `createForm` function
+	 * @return HTMLElement Returns either container argument or, if a new line is required, a newly created node that will receive upcoming created fields
+	 */	 
+	function _newLineBefore(field, container, params)
+	{
+		// if new line required
+		if ( field['newLineBefore'] )
+		{
+			// add previous group of fields (no newlines between them) to the form, and create a new group
+			if ( container.hasChildNodes() )
+			{
+				params.target.appendChild(container);
+				return document.createElement('div');
+			}
+		}
+		
+		
+		// return current group
+		return container;
+	}
+		
+	// ---- /PRIVATE ----
+	
+	
+	return {
+		
+		EMAIL : 'email',
+		TEXT : 'text',
+		NUMBER : 'number',
+		DATE : 'date',
+		TEL : 'tel',
+		/*DATE_PATTERN_DDMMYYYY : '%d/%m/%Y',
+		DATE_PATTERN_DDMMYY : '%d/%m/%y',
+		DATE_PATTERN_YMD : '%Y/%m/%d',*/
+		
+	
+		/** 
+         * Create the form as described in `params` argument
+         *
+         * @param object params Object litteral describing form and fields
+         * @return HTMLFormElement Returns the created form
+         */
+		createForm : function(params)
+		{
+			params.fields = params['fields'] || {};
+			params.target = params['target'] || document.createElement('form');
+			
+			
+			// form name
+			if ( params['name'] )
+				params.target.name = params.name;
+				
+			
+			// form style
+			params.target.classList.add('FormBuilder');
+
+
+			// if notice string
+			if ( params['notice'] )
+			{
+				var div = document.createElement('div');
+				div.innerHTML = params['notice'];
+				params.target.appendChild(div);
+			}
+				
+
+			// create a group of fields and begin creating them
+			var curr_container = document.createElement('div');
+			for ( var f in params.fields )
+			{
+				var field = params.fields[f];
+				
+				// handle newlines
+				curr_container = _newLineBefore(field, curr_container, params);
+				
+				
+				// specific cas for radio buttons : to easily grab user selection, 'name' must be identical for all radio buttons
+				// however, we can't build an object litteral with identical keys.
+				// so the radio buttons must be declared in an `items` property when defining the field
+				if ( field.type === 'radio' )
+				{
+					// if label, we create it
+					if ( field['label'] )
+						curr_container.appendChild(_createLabel(f, null, field, false));
+						
+					
+					// for all radio buttons
+					for ( var r in field['items'] )
+					{
+						var fradio = field['items'][r];
+						fradio.type = 'radio';
+						
+						// new line required
+						//curr_container = _newLineBefore(fradio, curr_container, params);
+				
+
+						// create the readion button, with common name 'f', the item name is only required to create object litteral keys
+						var frad = _createField(fradio, f, params);
+						curr_container.appendChild(frad);
+						
+						// store radio buttons in a form property array for easier access : form.elements.name_radio['item1_name']
+						params.target.elements[f + '_radio'] = params.target.elements[f + '_radio'] || {};
+						params.target.elements[f + '_radio'][fradio['name']] = frad.getElementsByTagName('input')[0];
+					}
+				}
+				else
+					// other field type
+					curr_container.appendChild(_createField(field, f, params));
+			}
+			
+			
+			// add last field group in form
+			params.target.appendChild(curr_container);			
+			
+			
+			// create buttons
+			params.target.appendChild(_createButtons(params));
+			
+			
+			// handle form onsubmit event
+			params.target.onsubmit = function(e)
+				{
+					// create form validator, with corresponding parameters in `params` : required, regexp, onsubmit, onsubmitpromise, notifier
+					var _formValidator = new nettools.jscore.validator.FormValidator(params);
+				
+				
+					// maybe we have to call a pre-submit event to format data, for example
+					if ( params['presubmit'] && (typeof params.presubmit === 'function') )
+						params['presubmit'](params.target.elements);
+	
+				
+					// validate
+					var st = _formValidator.isValid(params.target.elements);
+				
+				
+					// ensuring 'submit' parameter is an object of class nettools.jscore.SubmitHandlers.Handler
+					var sub = nettools.ui.FormBuilder.callbackToSubmitHandler(params['submit']);
+					
+				
+					// if form validator has returned a Promise
+					if ( st.constructor && (st.constructor.name === 'Promise') )
+						st.then(
+								function(st)
+								{
+									// sending form
+									if ( sub )
+										sub.submit(params.target, params.target.elements);
+								}
+							).catch(
+								function(e)
+								{
+									// catch errors ; if validation failed, this has already been handled inside _formValidator.isValid()
+									if ( e instanceof Error )
+										nettools.jscore.RequestHelper.promiseErrorHandler(e);
+								}
+							);
+					
+					// if form validator has returned a status
+					else 
+					if ( st.statut )
+						if ( sub )
+							// sending form
+							sub.submit(params.target, params.target.elements);
+	
+	
+					// never submit form
+					return false;
+				};
+			
+								
+			return params.target;
+		},
+		
+        
+		
+		/**
+         * Create an object litteral as expected for `fields` parameter from a Json string
+         *
+         * @param string str Json string to parse
+         * @return object Returns an object litteral decribing fields from Json data
+         */
+		jsonToFields : function(str)
+		{
+			var ret = JSON.parse(str);
+            if ( !ret )
+                return {};
+
+			// create simple field definition : type 'text' and value
+			for ( var field in ret )
+				ret[field] = {type:'text', value:ret[field]};
+			
+			return ret;
+		},
+		
+		
+		
+		/**
+		 * Ensure user submit process is a SubmitHandler.Handler object, and not a callback function
+		 *
+		 * @param function(form,elements)|nettools.jscore.SubmitHandlers.Handler cb User submit process
+		 * @return null|nettools.jscore.SubmitHandlers.Handler If 'cb' is a callback function, a nettools.jscore.SubmitHandlers.Callback object is created and returned
+		 */
+		callbackToSubmitHandler : function(cb)
+		{
+			if ( !cb )
+				return null;
+			
+			if ( typeof cb === 'function' )
+				return new nettools.jscore.SubmitHandlers.Callback({ target : cb });
+			else if ( (typeof cb === 'object') && (cb instanceof nettools.jscore.SubmitHandlers.Handler) )
+				return cb;
+			else
+				throw new Error('Invalid submit handler');
+		},
+		
+        
+		
+		/**
+         * Add a callback on top of a submit handler
+         *
+         * @param function(form, elements)|nettools.jscore.SubmitHandlers.Handler handler Callback or submit handler object describing form submission process
+         * @param function(form, elements) cb Callback to call after existing one
+         * @return Returns new submit handler (depending on first arguement `handler`, either a function or a nettools.jscore.SubmitHandlers.Handler object)
+         */
+		/*wrapHandler : function(handler, cb)
+		{
+			if ( handler )
+			{
+				// if function callback handler
+				if ( typeof handler === 'function' )
+					return function(form, elements)
+						{
+							handler(cb);
+						
+							if ( typeof cb === 'function' )
+								cb(form, elements);					
+						};
+							
+				
+				// if submit handler is a nettools.jscore.SubmitHandlers.Handler object, append callback
+				else if ( (typeof handler === 'object') && (handler instanceof nettools.jscore.SubmitHandlers.Handler) )
+				{
+					// append custom event after the old one
+					handler.customEvent(cb, true);
+				}
+
+
+				// always return submit handler
+				return handler;
+			}
+			
+			
+			// if no handler, we return the callback as main submit handler
+			else
+				return cb;
+		}*/
+	};
+})();
+
+
+
+
+
+
+
+
+
+// ==== WINDOW MANAGEMENT ====
+nettools.ui.window = {
+	
+    /**
+     * Open a popup window
+     * 
+     * @param string url 
+     * @param string name Window name
+     * @param int w Window width
+     * @param int h Window height
+     * @param bool scrollbars Set true to display scrollbars
+     * @return Window Returns the window objet
+     */
+	popup : function (url, name, w, h, scrollbars)
+	{
+		if ( (scrollbars === undefined) || (scrollbars === null) )
+			scrollbars = false;
+			
+		// -16 for window borders, -74 for borders + menu bar + address bar
+		var px = Math.round((screen.width - w - 16) / 2); 
+		var py = Math.round((screen.height - h - 74) / 2);
+		var wnd = window.open (url, name,'toolbar=0,scrollbars=' + (scrollbars ? "1" : "0") + ',statusbar=0,menubar=0,resizable=1,top=' + py + 'screenY=' + py + ',left=' + px + ',screenX=' + px + ',width=' + w + ',height=' + h);
+		
+		return wnd;
+	},
+
+
+    
+	/** 
+     * Close popup window without browser asking confirmation
+     */
+	fermer : function()
+	{
+		var obj_window = window.open('', '_self');
+		obj_window.opener = window; 
+		obj_window.focus(); 
+		opener=self; 
+		self.close();
+	},
+
+
+    
+	/** 
+     * Test if a popup window has been blocked by browser
+     *
+     * @param Window poppedWindow Window object to test
+     * @return bool
+     */
+	hasPopupBlocker : function (poppedWindow)
+	{
+		var result = false;
+	
+		try {
+			if (typeof poppedWindow === 'undefined') {
+				// Safari with popup blocker... leaves the popup window handle undefined
+				result = true;
+			}
+			else if (poppedWindow && poppedWindow.closed) {
+				// This happens if the user opens and closes the client window...
+				// Confusing because the handle is still available, but it's in a "closed" state.
+				// We're not saying that the window is not being blocked, we're just saying
+				// that the window has been closed before the test could be run.
+				result = false;
+			}
+			else if (poppedWindow && poppedWindow.com.ui.desktop.util.window) {
+					if (Number(poppedWindow.outerHeight) === 0)
+						result = true;
+					else
+						// This is the actual test. The client window should be fine.
+						result = false;
+			}
+			else {
+				// Else we'll assume the window is not OK
+				result = true;
+			}
+	
+		} catch (err) {
+			//if (console) {
+			//    console.warn("Could not access popup window", err);
+			//}
+		}
+	
+		return result;
+	}
+};
+
+
+
+
+

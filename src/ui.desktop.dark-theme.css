@@ -1,0 +1,55 @@
+
+/* landscape orientation tabs */
+ul.uiTabsL li.uiTabSelected{               /* current tab */
+    background-color: lightslategray;
+    border-bottom-color: var(--ui-borderColor);
+	color:navajowhite;
+}       
+
+div.uiTabsLContent{        				    /* content container */
+    border:1px solid var(--ui-borderColor);
+}
+
+ul.uiTabsL{
+	color:black;
+}
+
+ul.uiTabsL li {
+    background-color: var(--ui-themeBgColor);
+    text-shadow: none;
+	color:lightgray;
+}
+
+
+
+
+
+
+/* portrait tabs */
+ul.uiTabsP li.uiTabSelected{				/* current tab */
+    background-color: lightslategray;
+	color:navajowhite;
+	border-top-color: var(--ui-borderColor);
+	border-bottom-color: var(--ui-borderColor);
+}
+
+ul.uiTabsP{								
+	box-shadow:2px 2px 5px black;
+    background-color: var(--ui-themeBgColor);
+	border-right-color: black;
+}
+
+ul.uiTabsP li {
+    text-shadow: none;
+	color: lightgray;
+}
+
+ul.uiTabsP li:hover{
+	color:black;
+	border-top-color: black;
+	background-color: navajowhite;
+	border-bottom-color: black;
+}
+
+
+

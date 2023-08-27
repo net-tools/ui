@@ -14,12 +14,12 @@
     <script src="ui.js"></script>
 
     <style>
-        form {
+        form.test {
             display:flex;
             flex-wrap: wrap;
         }
 
-        form p {
+        form.test p {
             width:45%;
         }
         
@@ -51,6 +51,16 @@
             }
 
         }
+		
+		
+		#sampleMenuFormBuilder{
+			font-size: 0.7em;
+		}
+		
+		span.FormBuilderField input[type='text'],
+		span.FormBuilderField input[type='number']{
+			width:5em;
+		}
         
     </style>
     
@@ -58,6 +68,21 @@
     
     var test = {
      
+        dumpObject : function(o)
+        {
+            if ( o == null )
+                return 'null';
+            
+            var ret = [];
+            for ( var p in o )
+                ret.push(p + ':' + o[p]);
+            
+            return ret.join('\n');
+        },
+
+		
+		
+		// submit
         submit : function(form)
         {
             var inputs = [];
@@ -384,8 +409,106 @@
 					position : nettools.ui.FloatingMenu.BOTTOM_RIGHT
 				}
 			);
+		},
+		
+		
+		
+		formBuilder : function(xmlhttp, promise)
+        {
+        	function __cbcancel() { sample.output('test canceled !'); }
+			
+			
+            var params = {                    
+                    notice : 'intro message',
+
+                    fields : {
+                        input1 : {type:'text', value:'default 1', label:'input1 (numeric) ?', required : true},
+                        input2 : {type:'select', value:'', label:'input2 ?', required : true, options:[{value:'value1',label:'value1'}, {value:'value2',label:'value2'}]},
+                        input3 : {type:'checkbox', value:'chk1', label:'checkbox1', checked:true, newLineBefore:true},
+                        input4 : {type:'checkbox', value:'chk2', label:'checkbox2', checked:false, newLineBefore:false},
+                        input5 : {type:'radio', items:[{name:'radio1', label:'radio1', value:'radio1', checked:true},{name:'radio2', label:'radio2', value:'radio2', checked:false}]},
+                        input6 : {type:'textarea', value:'default 6', label:'input6 ?', newLineBefore:true, newLineAfterLabel:true},
+                        input7 : {type:'file', label:'input7 ?', newLineBefore:true},
+                        input8 : {type:'date', label:'input8 (date d/m/Y) ?', value:'2018-12-04', newLineBefore:true},
+                        input9 : {type:'time', label:'input9 (time) ?', value:'23:45:00', newLineBefore:false},
+                        input10 : {type:'number', label:'input10 (number) ?', value:'33', newLineBefore:true},
+                        input11 : {type:'tel', label:'input11 (tel) ?', value:'0473371507'}
+                    },
+
+                    regexps :  {
+                        input11 : /^[0-9]{10}$/
+                    },
+
+                    required : ['input1', 'input8', 'input9', 'input10', 'input11'],
+
+                    cancel : __cbcancel,
+								
+					//notifier : function(st) { alert(st.message); st.field.focus(); },
+				
+                    submit : xmlhttp ? new nettools.jscore.SubmitHandlers.XmlHttp({
+							target : 'com_core-submithandlers-http.php',
+							data : {key1 : 'myvalue1', key2 : false},
+							onload : function(form, elements, response)
+								{
+									sample.output(test.dumpObject(response.jsonReturn));
+								}
+						})
+						: new nettools.jscore.SubmitHandlers.Callback({
+							target : function(form, elements)
+								{
+									var inputs = [];
+
+									for ( var i = 1 ; i <= 13 ; i++ )
+									{
+										var input = form.elements['input' + i];
+
+										switch ( i )
+										{
+											// checkbox
+											case 3 :
+											case 4 :
+												inputs.push(input.nodeName.toLowerCase() + i + '(' + input.type + ')=' + (input.checked ? 'checked':''));
+												break;
+
+											// radio
+											case 5 :
+												inputs.push('input' + i + '(radio)=' + input.value);
+												break;
+
+											default:
+												inputs.push(input.nodeName.toLowerCase() + i + '(' + input.type + ')=' + input.value);
+										}
+									}
+
+									sample.output(inputs.join('\n'));
+								}
+						})
+                };
+
+            
+            if ( promise )
+                params.onsubmitpromise = function(elements)
+                    {
+                        if ( parseInt(elements.input1.value) == elements.input1.value )
+                            return Promise.resolve({statut:true});
+                        else
+                            return Promise.reject({statut:false, message:'field not numeric (promise)', field : elements.input1});
+                    };
+            else
+                params.onsubmit = function(elements)
+                    {
+                        if ( parseInt(elements.input1.value) == elements.input1.value )
+                            return {statut:true};
+                        else
+                            return {statut:false, message:'field not numeric', field : elements.input1};
+                    };
+           
+            
+			// create form
+			var f = nettools.ui.FormBuilder.createForm(params);
+			f.classList.add('uiForm');
+            document.getElementById('sampleMenuFormBuilder').appendChild(f);
 		}
-        
     }
     
     </script>
@@ -407,7 +530,7 @@
     <div id="output"></div>
 
 	
-    <form class="uiForm" onsubmit="test.submit(this); return false;">
+    <form class="uiForm test" onsubmit="test.submit(this); return false;">
        
         <p class="sampleBox">
             <label>Text field : 
@@ -484,8 +607,18 @@
 	
 
     <div class="flex">
-        
+        	
+		
         <div class="sampleBox">
+            <h1>nettools.ui.FormBuilder</h1>
+           	<div id="sampleMenuFormBuilder">
+			<input type="button" value="create form" onClick="test.formBuilder();">
+			</div>
+        </div>		
+
+		
+		
+		<div class="sampleBox">
             <h1>nettools.ui.RequestFeedback</h1>
                 
             <p><a href="javascript:void(0)" onclick="test.progress(true, false); return false;">Start progress halt 50%</a></p>
@@ -658,6 +791,8 @@
 			<input type="button" value="Show menu" onclick="test.menu();">
         </div>	
 		
+		
+		
         <div class="sampleBox" id="sampleUiPopupMenu">
             <h1>uiPopupMenu</h1>
            	<div id="sampleMenuPopup" style="width:200px; height:200px; border:1px solid black; background-color: silver;">Right-click here</div>
@@ -666,6 +801,8 @@
 		test.popupMenu();
 		</script>
 		
+		
+		
         <div class="sampleBox">
             <h1>uiFloatingMenu</h1>
            	<div id="sampleMenuFloating" style="width:200px; height:200px; border:1px solid black; background-color: silver;"></div>
@@ -673,6 +810,7 @@
 			test.floatingMenu();
 			</script>
         </div>		
+		
 	</div>
 	
 

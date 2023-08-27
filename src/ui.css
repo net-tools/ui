@@ -219,3 +219,37 @@ table.uiList{
 
 
 
+
+
+/* FORMBUILDER */
+.FormBuilderButtons{						/* buttons container */
+	text-align:center;
+	margin-top:2em !important;
+}
+
+.FormBuilderButtons input{					/* One button */
+	margin-left:0.6em;
+	margin-right:0.6em;
+}
+
+.FormBuilder{
+	padding:0.9em;
+}
+
+.FormBuilder > div{							/* container for a group of fields */
+	margin-top:0.9em;
+	margin-bottom:0.9em;
+	display: flex;
+}
+
+.FormBuilder > div:first-of-type{
+    margin-top:0;
+}
+
+
+.FormBuilder > div span {					/* field as label + input */
+	margin-right:1em;
+	margin-top:0px;
+	margin-bottom:0px;
+	line-height:1.7em;
+}

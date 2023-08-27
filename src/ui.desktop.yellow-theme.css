@@ -1,0 +1,9 @@
+
+ul.uiTabsP li.uiTabSelected{				
+    background-color: var(--ui-themeBgColor);
+}
+ 
+ul.uiTabsL li.uiTabSelected{				
+    background-color: var(--ui-themeBgColor);
+    border-bottom-color: var(--ui-themeBgColor);
+}       

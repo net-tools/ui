@@ -5,6 +5,9 @@ var sample = {
     {
         var style = document.getElementById('colorStyle');
         style.href = '../src/ui.' + sel.value + '-theme.css';
+
+		var style = document.getElementById('desktopColorStyle');
+        style.href = '../src/ui.desktop.' + sel.value + '-theme.css';
     },
     
     
