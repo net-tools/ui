@@ -1230,7 +1230,7 @@ nettools.ui.FormBuilder = (function(){
 				
 				
 					// ensuring 'submit' parameter is an object of class nettools.jscore.SubmitHandlers.Handler
-					var sub = nettools.ui.FormBuilder.callbackToSubmitHandler(params['submit']);
+					var sub = nettools.jscore.SubmitHandlers.Callback.toSubmitHandler(params['submit']);
 					
 				
 					// if form validator has returned a Promise
@@ -1289,27 +1289,6 @@ nettools.ui.FormBuilder = (function(){
 		},
 		
 		
-		
-		/**
-		 * Ensure user submit process is a SubmitHandler.Handler object, and not a callback function
-		 *
-		 * @param function(form,elements)|nettools.jscore.SubmitHandlers.Handler cb User submit process
-		 * @return null|nettools.jscore.SubmitHandlers.Handler If 'cb' is a callback function, a nettools.jscore.SubmitHandlers.Callback object is created and returned
-		 */
-		callbackToSubmitHandler : function(cb)
-		{
-			if ( !cb )
-				return null;
-			
-			if ( typeof cb === 'function' )
-				return new nettools.jscore.SubmitHandlers.Callback({ target : cb });
-			else if ( (typeof cb === 'object') && (cb instanceof nettools.jscore.SubmitHandlers.Handler) )
-				return cb;
-			else
-				throw new Error('Invalid submit handler');
-		},
-		
-        
 		
 		/**
          * Add a callback on top of a submit handler
