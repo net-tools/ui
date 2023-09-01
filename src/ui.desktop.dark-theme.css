@@ -1,3 +1,13 @@
+:root {
+	--ui-desktop-bodyBgColor: var(--ui-bgColor);
+	--ui-desktop-boxBorderColor: var(--ui-borderColor);	
+}
+
+
+
+
+
+/* TABS */
 
 /* landscape orientation tabs */
 ul.uiTabsL li.uiTabSelected{               /* current tab */
@@ -50,6 +60,19 @@ ul.uiTabsP li:hover{
 	background-color: navajowhite;
 	border-bottom-color: black;
 }
+
+
+
+
+
+/* FORMS */
+
+.uiDialog{
+    border-color: var(--ui-desktop-boxBorderColor);
+	background-color: var(--ui-desktop-bodyBgColor);
+	box-shadow: 1px 1px 30px 0px rgba(255,255,255,0.1);	
+}
+        
 
 
 

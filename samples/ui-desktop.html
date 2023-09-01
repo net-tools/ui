@@ -75,14 +75,243 @@
         },
 
 		
+		
+        // launch a test
+        run : function(method, args)
+        {
+            nettools.ui.desktop.dialog[method].apply(null, args);
+        },
+        
+        
+        
+		// test with promise
+        runPromise : function(method, args)
+        {
+            var p = nettools.ui.desktop.dialog[method].apply(null, args);
+            
+            p.then(
+                    function(r)
+                    {
+                        if ( typeof(r) == 'object' )
+                        {
+                            var out = [];
+                            for ( var p in r )
+                                out.push('  ' + p + ':' + r[p]);
+                            
+                            r = "{\n" + out.join('\n') + "\n}";
+                        }
+                            
+                        sample.output('Test runned / promise accepted' + (r?'\nValue='+r:''));
+                    }
+                )
+            .catch(
+                    function(r)
+                    {
+                        sample.output('Test runned / promise rejected or exception');
+                    }
+            );
+            
+            return p;
+        },
+        
+        
+        
+        // dynamic form
+        dynamicForm : function(w, promise, top, xmlhttp)
+        {
+            var params = {                    
+                    notice : 'intro message',
+
+                    fields : {
+                        input1 : {type:'text', value:'default 1', label:'input1 (numeric) ?', required : true},
+                        input2 : {type:'select', value:'', label:'input2 ?', required : true, options:[{value:'value1',label:'value1'}, {value:'value2',label:'value2'}]},
+                        input3 : {type:'checkbox', value:'chk1', label:'checkbox1', checked:true, newLineBefore:true},
+                        input4 : {type:'checkbox', value:'chk2', label:'checkbox2', checked:false, newLineBefore:false},
+                        input5 : {type:'radio', items:[{name:'radio1', label:'radio1', value:'radio1', checked:true},{name:'radio2', label:'radio2', value:'radio2', checked:false}]},
+                        input6 : {type:'textarea', value:'default 6', label:'input6 ?', newLineBefore:true, newLineAfterLabel:true},
+                        input7 : {type:'file', label:'input7 ?', newLineBefore:true},
+                        input8 : {type:'date', label:'input8 (date d/m/Y) ?', value:'2018-12-04', newLineBefore:true},
+                        input9 : {type:'time', label:'input9 (time) ?', value:'23:45:00', newLineBefore:false},
+                        input10 : {type:'number', label:'input10 (number) ?', value:'33', newLineBefore:true},
+                        input11 : {type:'tel', label:'input11 (tel) ?', value:'0473371507'}
+                    },
+
+                    regexps :  {
+                        input11 : /^[0-9]{10}$/
+                    },
+
+                    required : ['input1', 'input8', 'input9', 'input10', 'input11'],
+
+                    cancel : function(form, elements)
+                    {
+                        test.cbcancel();    
+                    },
+				
+                    submit : xmlhttp ? new nettools.jscore.SubmitHandlers.XmlHttp({
+							target : 'submithandlers-http.php',
+							data : {key1 : 'myvalue1', key2 : false},
+							onload : function(form, elements, response)
+								{
+									sample.output(test.dumpObject(response.jsonReturn));
+								}
+						})
+						: new nettools.jscore.SubmitHandlers.Callback({
+							target : function(form, elements)
+								{
+									var inputs = [];
+
+									for ( var i = 1 ; i <= 11 ; i++ )
+									{
+										var input = form.elements['input' + i];
+
+										switch ( i )
+										{
+											// checkbox
+											case 3 :
+											case 4 :
+												inputs.push(input.nodeName.toLowerCase() + i + '(' + input.type + ')=' + (input.checked ? 'checked':''));
+												break;
+
+											// radio
+											case 5 :
+												inputs.push('input' + i + '(radio)=' + input.value);
+												break;
+
+											default:
+												inputs.push(input.nodeName.toLowerCase() + i + '(' + input.type + ')=' + input.value);
+										}
+									}
+
+									sample.output(inputs.join('\n'));
+								}
+						})
+                };
+
+            
+            if ( promise )
+                params.onsubmitpromise = function(elements)
+                    {
+                        if ( parseInt(elements.input1.value) == elements.input1.value )
+                            return Promise.resolve({statut:true});
+                        else
+                            return Promise.reject({statut:false, message:'field not numeric (promise)', field : elements.input1});
+                    };
+            else
+                params.onsubmit = function(elements)
+                    {
+                        if ( parseInt(elements.input1.value) == elements.input1.value )
+                            return {statut:true};
+                        else
+                            return {statut:false, message:'field not numeric', field : elements.input1};
+                    };
+           
+            
+            nettools.ui.desktop.dialog.dynamicForm(params, 'fstyle', w, promise?(top?nettools.ui.desktop.dialog.alignTop(450):450):nettools.ui.desktop.dialog.ALIGN_DEFAULT, function(){alert('loaded');});
+        },
+                
+        
+        
+        // large dynamic form
+        largeDynamicForm : function(promise, top)
+        {
+            var params = {                    
+                    fields : {
+                        input1 : {type:'text', value:'default 1', label:'input1 (numeric) ?', required : true, style:'width:700px'}
+                    },
+                
+                    submit : 
+						new nettools.jscore.SubmitHandlers.Callback(
+							{
+								target : function(form, elements)
+									{
+										sample.output('Input value : ' + elements.input1.value);
+									}
+							})
+                };
+
+            
+            nettools.ui.desktop.dialog.dynamicForm(params, 'fstyle', nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_TOP);
+        },
+               
+        
+        
+        //dynamic form with upload progress feedback
+        dynamicFormWithFeedback : function()
+        {
+			p = new nettools.ui.RequestFeedback(
+				{
+					loadmsg : 'Upload ended !'
+				},
+				function(pct){sample.output('Upload % : ' + pct);},
+				function(){sample.output('Upload complete !');},
+				null
+			);
+
+
+			
+			
+			var params = {                    
+                    fields : {
+                        input1 : {type:'text', value:'test', label:'input1 (numeric) ?', required : true}
+                    },
+                
+                    submit : 
+						new nettools.jscore.SubmitHandlers.XmlHttpWithFeedback(
+							{
+								feedback : p,
+								target : 'requestHelper-sendWithFeedbackPromise.php',
+								data : {
+									key1 : 'value1',
+									bigstring : 'x'.repeat(1*512*1024)
+								},
+								csrf : false,
+								onload : function(form, elements, response)
+								{
+									alert(response.jsonReturn.message);
+								}
+							})
+                };
+
+            
+            nettools.ui.desktop.dialog.dynamicForm(params, 'fstyle', nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_TOP);
+        },
+		
+		
+		
+		// load tinymce
+		loadTinymce : function()
+		{
+			nettools.jscore.loadScript('/libc-ui-test/vendor/tinymce/tinymce/tinymce.min.js', 
+					function()
+					{
+						alert('tinyMce loaded !');
+					}
+				);
+		},        
+        
+		
+        
+        // callbacks
+        cb : function(r)  { sample.output('test runned !' + (r?'\nValue='+r:'')); },
+        cbdialog : function(node) {sample.output(node.querySelector('input').value);},
+        cbcancel : function()  { sample.output('test canceled !'); },
+        cbv : function(node){return node.querySelector('input').value != ''},
+        cbshow : function(form, elements) { sample.output('input=' + elements.input.value); },
+        cbvshow : function(document) { return document.querySelector('input').value != ''; },
+                
+        
+        loremipsum : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat',
+		
+		
+		// document onload event
         onload : function()
         {
 	
 			tabsP = new nettools.ui.desktop.Tabs(
 					{
 						tabs : [
-								{title:'Tab 1', id:'tab1', url:'com_ui-tabs-tab1.html'},
-								{title:'Tab 2',	id:'tab2', url:'com_ui-tabs-tab2.html'}
+								{title:'Tab 1', id:'tab1', url:'ui-tabs-tab1.html'},
+								{title:'Tab 2',	id:'tab2', url:'ui-tabs-tab2.html'}
 							],
 						orientation : 'P',
 						portraitTabWidth : '150px',
@@ -95,8 +324,8 @@
 			tabsL = new nettools.ui.desktop.Tabs(
 					{
 						tabs : [
-								{title:'Tab 1', id:'tab1', url:'com_ui-tabs-tab1.html'},
-								{title:'Tab 2',	id:'tab2', url:'com_ui-tabs-tab2.html'}
+								{title:'Tab 1', id:'tab1', url:'ui-tabs-tab1.html'},
+								{title:'Tab 2',	id:'tab2', url:'ui-tabs-tab2.html'}
 							],
 						orientation : 'L'
 					}
@@ -129,6 +358,116 @@
     <div id="output"></div>
 
     <div class="flex">
+
+        <div class="sampleBox">
+            <h1>nettools.ui.desktop.dialog.*</h1>
+            <p>
+                <a href="javascript:void(0)" onclick="test.run('notify', [test.loremipsum, test.cb]); return false;">notify</a>
+                -
+                <a href="javascript:void(0)" onclick="test.run('notify', [test.loremipsum, test.cb, nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_CENTER]); return false;">notify (center)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.run('notify', [test.loremipsum, test.cb, '30em']); return false;">notify (30em)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('notifyPromise', [test.loremipsum, 500]); return false;">notifyPromise (500)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('notifyPromise', [test.loremipsum, 500, 200]); return false;">notifyPromise (500, 200)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('notifyPromise', [test.loremipsum, 500, nettools.ui.desktop.dialog.alignTop(200)]); return false;">notifyPromise (500, 200 top)</a>
+            </p>   
+                
+            <p>    
+                <a href="javascript:void(0)" onclick="test.run('confirm', [test.loremipsum, test.cb, nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_DEFAULT, test.cbcancel]); return false;">confirm</a>
+                -
+                <a href="javascript:void(0)" onclick="test.run('confirm', [test.loremipsum, test.cb, nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_CENTER, test.cbcancel]); return false;">confirm (center)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('confirmPromise', [test.loremipsum, 500]); return false;">confirmPromise (500)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('confirmPromise', [test.loremipsum, 500, 200]); return false;">confirmPromise (500x200)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('confirmPromise', [test.loremipsum, 500, nettools.ui.desktop.dialog.alignTop(200)]); return false;">confirmPromise (500x200 top)</a>
+            </p>   
+                
+            <p>    
+                <a href="javascript:void(0)" onclick="test.run('prompt', ['prompt value ?', 'default value', test.cb, false, null, test.cbcancel]); return false;">prompt</a>
+                -
+                <a href="javascript:void(0)" onclick="test.run('prompt', ['prompt value ?', 'default value', new nettools.jscore.SubmitHandlers.Callback({target:function(form, elements){ alert(elements[0].value);}}), false, null, test.cbcancel]); return false;">prompt SubmitHandlers.Callback</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('promptPromise', ['prompt value ?', 'default value', false, null]); return false;">promptPromise</a>
+                 
+                -
+                
+                <a href="javascript:void(0)" onclick="test.run('prompt', ['prompt value ?', 'default value', test.cb, true, null, test.cbcancel]); return false;">prompt-textarea</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('promptPromise', ['prompt value ?', 'default value', true, null]); return false;">promptPromise-textarea</a>
+            </p>     
+                
+            <p>    
+                <a href="javascript:void(0)" onclick="test.run('customNotify', ['<span>'+test.loremipsum+'</span>', nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_DEFAULT, test.cb]); return false;">customNotify</a>
+                -
+                <a href="javascript:void(0)" onclick="test.run('customNotify', ['<span>'+test.loremipsum+'</span>', nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_CENTER, test.cb]); return false;">customNotify (center)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.run('customNotify', ['<span>'+test.loremipsum+'</span>', '30em', nettools.ui.desktop.dialog.ALIGN_DEFAULT, test.cb]); return false;">customNotify (30em)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('customNotifyPromise', ['<span>'+test.loremipsum+'</span>', 500, 200]); return false;">customNotifyPromise (500x200)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('customNotifyPromise', ['<span>'+test.loremipsum+'</span>', 500, nettools.ui.desktop.dialog.alignTop(200)]); return false;">customNotifyPromise (500x200 top)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.run('customNotify', [function(x){x.innerHTML='<span>'+test.loremipsum+'</span>';}, nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_DEFAULT, test.cb]); return false;">customNotify-function(node)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('customNotifyPromise', [function(x){x.innerHTML='<span>'+test.loremipsum+'</span>';}, 500, 200]); return false;">customNotifyPromise-function(node) (500x200)</a>
+            </p>
+            
+            
+            <p>
+                <a href="javascript:void(0)" onclick="test.run('customDialog', ['<form>Value: <input type=text></form>', nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_DEFAULT, test.cbdialog, test.cbv, test.cbcancel, true]); return false;">customDialog</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('customDialogPromise', ['<form>Value: <input type=text></form>', 500, 200, test.cbv, true]).then(function(node){test.cbdialog(node);}); return false;">customDialogPromise (500x200)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('customDialogPromise', ['<form>Value: <input type=text></form>', 500, nettools.ui.desktop.dialog.alignTop(200), test.cbv, true]).then(function(node){test.cbdialog(node);}); return false;">customDialogPromise (500x200 top)</a>
+            </p>
+            
+            
+            <p>
+                <a href="javascript:void(0)" onclick="test.dynamicForm(); return false;">dynamicForm</a>            
+                -
+                <a href="javascript:void(0)" onclick="test.dynamicForm(null, false, false, true); return false;">dynamicForm (xmlhttp SubmitHandler)</a>            
+                -
+                <a href="javascript:void(0)" onclick="test.dynamicForm(null, true, true); return false;">dynamicForm (onSubmitPromise + top)</a>            
+                -
+                <a href="javascript:void(0)" onclick="test.dynamicForm(750); return false;">dynamicForm (750)</a>            
+                -
+                <a href="javascript:void(0)" onclick="test.dynamicForm('30em'); return false;">dynamicForm (30em)</a>            
+                -
+                <a href="javascript:void(0)" onclick="test.dynamicForm(750, true, false); return false;">dynamicForm(onSubmitPromise, 750x550)</a>            
+                -
+                <a href="javascript:void(0)" onclick="test.dynamicForm(750, true, true); return false;">dynamicForm(onSubmitPromise + top, 750x550)</a>            
+                -
+                <a href="javascript:void(0)" onclick="test.largeDynamicForm(); return false;">dynamicForm(large + top)</a>            
+                -
+                <a href="javascript:void(0)" onclick="test.dynamicFormWithFeedback(); return false;">dynamicFormWithFeedback</a>            
+            </p>
+            
+            
+            <p>
+                <a href="javascript:void(0)" onclick="test.run('show', ['ui-desktop-iframe.php', 500, 200, test.cbshow, test.cbvshow, test.cbcancel, true]); return false;">show (500x200)</a>            
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('showPromise', ['ui-desktop-iframe.php', 500, nettools.ui.desktop.dialog.alignTop(200), test.cbvshow, true]); return false;">showPromise (500x200 top)</a>            
+                -
+                <a href="javascript:void(0)" onclick="test.run('showAndSubmit', ['ui-desktop-iframe.php', 500, 200, test.cbvshow, test.cbcancel, true]); return false;">showAndSubmit (500x200)</a>            
+            </p>
+            
+            <p>
+                <a href="javascript:void(0)" onclick="test.run('richEdit', [test.loremipsum, nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_DEFAULT, test.cb, true]); return false;">richEdit</a>
+                -
+                <a href="javascript:void(0)" onclick="test.run('richEdit', [test.loremipsum, '40em', nettools.ui.desktop.dialog.ALIGN_DEFAULT, test.cb, true]); return false;">richEdit (40em)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('richEditPromise', [test.loremipsum, 500, 200]); return false;">richEditPromise (500x200)</a>
+                -
+                <a href="javascript:void(0)" onclick="test.runPromise('richEditPromise', [test.loremipsum, 500, nettools.ui.desktop.dialog.alignTop(200)]); return false;">richEditPromise (500x200 top)</a>
+            </p>   
+			
+			<p><a href="javascript:void(0)" onclick="test.loadTinymce(); return false;">load Tinymce</a></p>
+        </div>
 
 		
         <div class="sampleBox">

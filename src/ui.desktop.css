@@ -1,3 +1,5 @@
+/* TABS */
+
 .uiTabsLFlex {                            	/* landscape tabs, all tabs in first row ; top container */
     display:flex;
     flex-direction: column;
@@ -23,7 +25,7 @@ ul.uiTabsL li{								/* one tab */
     border:1px solid gray;
     text-shadow: 1px 1px 2px lightgray;
     background-color: whitesmoke;
-    z-index: 99999;
+    z-index: 99;
 }
 
 ul.uiTabsL li:first-child{
@@ -97,4 +99,132 @@ ul.uiTabsP li:hover{
 ul.uiTabsP li.uiTabSelected{				/* current tab */
 	border-top: 1px solid gray;
 	border-bottom: 1px solid gray;
+}
+
+
+
+
+
+
+/* FORMS */
+
+/* prompt */
+.uiPromptLib{
+	padding-bottom:0.5em;
+	font-size:  0.9em;
+}
+
+.uiPromptValue{
+	width:100%;
+}
+
+
+
+
+/* prompt textarea */
+.uiTextAreaLib{
+	padding-bottom:0.5em;
+	font-size:  0.9em;
+}
+
+
+.uiTextAreaCadre{            
+    width:80%;
+    height:80%;
+    margin-top:auto !important;
+}
+
+.uiTextAreaCadre div.uiDialogContent {
+    display:flex;
+    flex-direction: column;
+}
+
+.uiTextAreaCadre div.uiDialogContent form {
+    flex-grow: 1;
+    display:flex;
+}
+
+
+
+
+/* richedit */
+.uiRichEditCadreWMax {
+    width:80%;
+}
+
+
+
+
+/* show, showAndSubmit */
+.uiDialogCadre .uiDialogContent {
+    display:flex;
+    flex-direction: column;
+}
+.uiDialogCadre .uiDialogContent > iframe {
+    flex-grow: 1;
+    flex-shrink: 1;
+    height: 1px;     /* bug, mais ensuite le dimensionnement va se faire avec flex-grow dans le container */
+}
+
+
+
+/* tailles cadres et alignements */
+.uiPromptCadre,
+.uiNotifyCadre,
+.uiConfirmCadre{
+    width:40em;
+}
+
+.uiConfirmCadre .uiDialogContent,
+.uiNotifyCadre .uiDialogContent {
+    text-align: center;
+}
+
+
+
+/* dialog */
+.uiDialogWrapper {
+	display: flex;
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+    background-color:rgb(20 29 43 / 80%);
+    z-index: 101;
+}
+
+.uiDialog{
+	padding: 1em;
+	background-color:white;
+	border:2px solid dimgray;
+    margin:auto;
+	display:flex;
+    flex-direction: column;
+    z-index: 102;
+	box-shadow: 1px 1px 30px 0px gray;
+}
+
+.uiDialogVCentered {
+}
+
+.uiDialogTopAligned {
+    margin-top:10em;
+}
+
+.uiDialogContent{
+    flex-grow: 1;
+}
+
+.uiDialogButtons{
+	margin-top:auto;
+    padding-top:2em;
+    margin-bottom:0.5em;
+    text-align: center;
+}
+
+.dhx_widget {
+	z-index: 99999999;
+	box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+	text-shadow: none;
 }

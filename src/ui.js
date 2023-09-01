@@ -750,7 +750,7 @@ nettools.ui.Size = class {
  *   - onsubmitpromise : function(HTMLInputElement[]) ; a custom function to validate data before sending form ; must return a Promise resolved with value {statut:true} or a rejected promise with value { statut:false, message:'', field:input_in_error}
  *   - presubmit : function(HTMLInputElement[]) ; a custom function to make any updates to data before validation and submission (may be used to remove unwanted characters, etc.)
  *   - submit : nettools.jscore.SubmitHandlers.Handler ; an object responsible for handling form submission
- *   - cancel : function(HTMLForm, HTMLInputElement[]) ; a callback called if form is canceled
+ *   - cancel : function(HTMLForm) ; a callback called if form is canceled
  *   - target : HTMLForm ; form node to create field into, if not defined, a new form will be created
  *   - name : string ; form name
  *   - required : string[] ; defines mandatory fields as an array of string, each values being a key of `fields` object litteral property
@@ -769,7 +769,7 @@ nettools.ui.Size = class {
  *  	name7 : {type:'textarea', value:'', newLineBefore:true, regexp:/abcd/},
  *  	name8 : {type:'file', value:'', newLineBefore:true},
  *  	name9 : {type:'image', value:'images/pic.jpg', label : 'Logo actif', title:'Image tooltip here'},
- *		name10: {type:'date', value:'25/10/2018', dhtmlxPattern:'%d/%m/%y', dhtmlxLanguage:'fr'},
+ *		name10: {type:'date', value:'2018-10-25'},
  *		name11: {type:'text', value:'tmp', readonly:true}
  *  }
  */ 
@@ -911,46 +911,10 @@ nettools.ui.FormBuilder = (function(){
 		
 		
 		
-		// if field type is 'date' and if dhtmlx calendar loaded
-		if ( ( field.type === 'date' ) && (typeof dhx == 'object') && (typeof dhx.Calendar == 'function') )
-		{
-			// revert field type to 'text'
-			e.type = 'text';
-
-			/*
-			// if specific date pattern
-			if ( field.dhtmlxPattern )
-			{
-				// définir regexp
-				switch ( field.dhtmlxPattern )
-				{
-					case com.ui.core.FormBuilder.DATE_PATTERN_DDMMYYYY:
-						field.regexp = nettools.jscore.validator.Patterns.DATEYYYY;
-						break;
-					case com.ui.core.FormBuilder.DATE_PATTERN_DDMMYY:
-						field.regexp = nettools.jscore.validator.Patterns.DATEYY;
-						break;
-					case com.ui.core.FormBuilder.DATE_PATTERN_YMD:
-						field.regexp = nettools.jscore.validator.Patterns.DATEYMD;
-						break;
-						
-					// si format %d %m %y non standard
-					default:
-						var reg_d = '(0[1-9]|[12][0-9]|3[01])';
-						var reg_m = '(0[1-9]|1[012])';
-						var reg_yy = '([0-9]{2})';
-						var reg_yyyy = '([0-9]{4})';
-						
-						field.regexp = new RegExp('^' + field.dhtmlxPattern
-																.replace(/%d/g, reg_d)
-																.replace(/%m/g, reg_m)
-																.replace(/%y/g, reg_yy)
-																.replace(/%Y/g, reg_yyyy)
-												  + '$');
-						break;
-				}
-			}*/
-		}
+		// if browser is NOT html5 compliant, the type is reverted to 'text'
+		if ( (field.type === 'date') && (e.type == 'text') )
+			// in that case, forcing regexp for this field to normalized format for 'date' field : yyyy-mm-dd
+			field['regexp'] = /^[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/;
 				
 		
 		
@@ -983,17 +947,10 @@ nettools.ui.FormBuilder = (function(){
 			// set title so that html5 validation may display correct strings
 			switch ( e.getAttribute('data-formBuilderType') )
 			{
-				case 'email' : e.title = 'Adresse de courrier électronique valide (pas d\'accents, pas d\'espaces)'; break;
-				case 'date' : 
-					switch ( e.pattern )
-					{
-						case nettools.jscore.validator.Patterns.DATEYY.source : e.title = 'Date valide au format (jj/mm/aa)'; break;
-						case nettools.jscore.validator.Patterns.DATEYYYY.source : e.title = 'Date valide au format (jj/mm/aaaa)'; break;
-						case nettools.jscore.validator.Patterns.DATEYMD.source : e.title = 'Date valide au format (aaaammjj)'; break;
-					}
-					break;
-				case 'tel' : e.title = 'Numéro de téléphone valide'; break;
-				case 'number' : e.title = 'Nombre entier valide'; break;
+				case 'email' : e.title = nettools.ui.FormBuilder.i18n.PATTERN_EMAIL; break;
+				case 'date' : e.title = nettools.ui.FormBuilder.i18n.PATTERN_DATE; break;
+				case 'tel' : e.title = nettools.ui.FormBuilder.i18n.PATTERN_TEL; break;
+				case 'number' : e.title = nettools.ui.FormBuilder.i18n.PATTERN_NUMBER; break;
 			}
 			
 		}
@@ -1067,18 +1024,18 @@ nettools.ui.FormBuilder = (function(){
 		var div = document.createElement('div');
 		var btn = document.createElement('input');
 		btn.type = 'submit';
-		btn.value = 'Valider';
+		btn.value = nettools.ui.FormBuilder.i18n.BUTTON_ACCEPT;
 		btn.name = "submit_button";
 		div.appendChild(btn);
 
 		var btn = document.createElement('input');
 		btn.type = 'button';
-		btn.value = 'Annuler';
+		btn.value = nettools.ui.FormBuilder.i18n.BUTTON_CANCEL;
 		btn.name = "cancel_button";
 		btn.onclick = function(e)
 			{
 				if ( params['cancel'] && (typeof params.cancel === 'function') )
-					params.cancel(params.target, null, params['data']);
+					params.cancel(params.target);
 			};
 		div.appendChild(btn);
 		
@@ -1125,9 +1082,6 @@ nettools.ui.FormBuilder = (function(){
 		NUMBER : 'number',
 		DATE : 'date',
 		TEL : 'tel',
-		/*DATE_PATTERN_DDMMYYYY : '%d/%m/%Y',
-		DATE_PATTERN_DDMMYY : '%d/%m/%y',
-		DATE_PATTERN_YMD : '%Y/%m/%d',*/
 		
 	
 		/** 
@@ -1254,9 +1208,8 @@ nettools.ui.FormBuilder = (function(){
 					// if form validator has returned a status
 					else 
 					if ( st.statut )
-						if ( sub )
-							// sending form
-							sub.submit(params.target, params.target.elements);
+						// sending form
+						sub.submit(params.target, params.target.elements);
 	
 	
 					// never submit form
@@ -1286,52 +1239,21 @@ nettools.ui.FormBuilder = (function(){
 				ret[field] = {type:'text', value:ret[field]};
 			
 			return ret;
-		},
+		}
 		
-		
-		
-		/**
-         * Add a callback on top of a submit handler
-         *
-         * @param function(form, elements)|nettools.jscore.SubmitHandlers.Handler handler Callback or submit handler object describing form submission process
-         * @param function(form, elements) cb Callback to call after existing one
-         * @return Returns new submit handler (depending on first arguement `handler`, either a function or a nettools.jscore.SubmitHandlers.Handler object)
-         */
-		/*wrapHandler : function(handler, cb)
-		{
-			if ( handler )
-			{
-				// if function callback handler
-				if ( typeof handler === 'function' )
-					return function(form, elements)
-						{
-							handler(cb);
-						
-							if ( typeof cb === 'function' )
-								cb(form, elements);					
-						};
-							
-				
-				// if submit handler is a nettools.jscore.SubmitHandlers.Handler object, append callback
-				else if ( (typeof handler === 'object') && (handler instanceof nettools.jscore.SubmitHandlers.Handler) )
-				{
-					// append custom event after the old one
-					handler.customEvent(cb, true);
-				}
-
-
-				// always return submit handler
-				return handler;
-			}
-			
-			
-			// if no handler, we return the callback as main submit handler
-			else
-				return cb;
-		}*/
 	};
 })();
 
+
+// i18n
+nettools.ui.FormBuilder.i18n = {
+	PATTERN_EMAIL : 'Valid email address (no accent, no space)',
+	PATTERN_DATE : 'Date with format yyyy-mm-dd',
+	PATTERN_TEL : 'Any valid phone number',
+	PATTERN_NUMBER : 'Any integer',
+	BUTTON_ACCEPT : 'Accept',
+	BUTTON_CANCEL : 'Cancel'
+}
 
 
 
