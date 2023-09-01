@@ -1,3 +1,17 @@
+/* FRAME */
+
+.uiFrame {
+	padding: 10px;
+	border: 1px solid var(--ui-borderColor);
+	background-color: whitesmoke;
+}
+
+
+
+
+
+
+
 /* TABS */
 
 .uiTabsLFlex {                            	/* landscape tabs, all tabs in first row ; top container */

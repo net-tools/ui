@@ -1,7 +1,22 @@
 :root {
 	--ui-desktop-bodyBgColor: var(--ui-bgColor);
+	--ui-desktop-boxBgColor: #375573;
 	--ui-desktop-boxBorderColor: var(--ui-borderColor);	
 }
+
+
+
+
+
+/* FRAMES */
+
+.uiFrame {
+	background-color: var(--ui-desktop-boxBgColor);	
+	border-color:var(--ui-desktop-boxBorderColor);
+}
+
+
+
 
 
 
