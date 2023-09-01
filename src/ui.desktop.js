@@ -829,9 +829,9 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 				var node = document.body.firstElementChild;
 				
 				var form = node.querySelector('form');				
-				_addHiddenSubmit(form, node.querySelector('input[type="submit"]'));
+				_addHiddenSubmit(form, node.querySelector('input[type="button"]:first-child'));
 
-				
+				//`<div class="uiDialogButtons"><input type="button"
 
 				return {
 					nodecenter : node,

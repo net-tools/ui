@@ -60,7 +60,7 @@ switch(a){case "richedit_div":return document.body.insertAdjacentHTML("afterbegi
 							${b}
 						</div>
 					</div>
-					`),a=document.body.firstElementChild,b=a.querySelector("form"),h(b,a.querySelector('input[type="submit"]')),{nodecenter:a,node:a.firstElementChild,lib:a.querySelector("div.uiPromptLib"),input:a.querySelector("input.uiPromptValue"),form:b,ok:a.querySelectorAll(".uiDialogButtons input")[0],cancel:a.querySelectorAll(".uiDialogButtons input")[1]};case "textarea_div":return document.body.insertAdjacentHTML("afterbegin",`
+					`),a=document.body.firstElementChild,b=a.querySelector("form"),h(b,a.querySelector('input[type="button"]:first-child')),{nodecenter:a,node:a.firstElementChild,lib:a.querySelector("div.uiPromptLib"),input:a.querySelector("input.uiPromptValue"),form:b,ok:a.querySelectorAll(".uiDialogButtons input")[0],cancel:a.querySelectorAll(".uiDialogButtons input")[1]};case "textarea_div":return document.body.insertAdjacentHTML("afterbegin",`
 					<div class="uiDialogWrapper" style="visibility:hidden;">
 						<div class="uiForm uiDialog uiTextAreaCadre">
 							<div class="uiDialogContent">
