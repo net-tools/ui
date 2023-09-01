@@ -1399,7 +1399,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 			// init css
 			params.target.className = 'uiForm';
 			if ( formClassName )
-				params.target.classList.add(formClassName);
+				formClassName.split(/ /).forEach(function(v){ params.target.classList.add(v); });
 	
             
 			// add more processing to SUBMIT and CANCEL handlers
