@@ -25,3 +25,35 @@ ul.uiTabsL li.uiTabSelected{
 
 
 
+
+
+/* BLOCKS */
+div.uiBlock h1									    /* block title */
+{
+	color:darkblue;
+	border:1px solid var(--ui-borderColor);
+	background-color:whitesmoke;
+}
+
+
+
+
+
+
+
+/* STEPS LIST */
+ul.uiSteps > li h1 {									/* step title */
+	background-color:whitesmoke;
+	border-top:1px solid var(--ui-borderColor);
+	border-bottom:1px solid var(--ui-borderColor);
+	color:darkblue;
+}
+
+ul.uiSteps > li h1 span{								/* step number */
+	background-color: var(--ui-themeBgColor);
+	border:1px solid lightsteelblue;
+    color:dimgray;
+}
+
+
+

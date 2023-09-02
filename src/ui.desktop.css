@@ -242,3 +242,85 @@ ul.uiTabsP li.uiTabSelected{				/* current tab */
 	box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 	text-shadow: none;
 }
+
+
+
+
+
+
+
+/* BLOCKS */
+
+div.uiBlock										/* a content block : one line with icon, and a content frame below */
+{
+	margin:2em 0;
+}
+
+div.uiBlock h1									/* block title */
+{
+	text-transform:uppercase;
+	font-weight:bold;
+	display: flex;
+    align-items: center;
+	height:2em;
+	font-size:1em;
+	margin:0px;
+    padding-left: 0.5em;
+}
+
+div.uiBlock h1 img								/* block icon */
+{
+	margin-right:8px;
+}
+
+div.uiBlock > div								/* block content */
+{
+	padding:0.7em 1em;
+	border-left:1px solid var(--ui-borderColor);
+	border-bottom:1px solid var(--ui-borderColor);
+	border-right:1px solid var(--ui-borderColor);
+	height:auto;
+}
+
+
+
+
+
+
+
+/* STEPS LIST */
+ul.uiSteps {
+    list-style: none;
+}
+
+ul.uiSteps, 							/* css reset */
+ul.uiSteps > li, 
+ul.uiSteps h1{
+	margin:0px;
+	padding:0px;
+}
+
+ul.uiSteps > li h1 + div{				/* content DIV and its margins */
+	margin-top:5px;
+	margin-bottom:20px;
+}
+
+ul.uiSteps > li h1{						/* step title */
+	font-size:1em;
+	font-weight:bold;
+    display: flex;
+    height: 1.8em;
+    align-items:center;
+}
+
+ul.uiSteps > li h1 span{				/* step number */
+	margin-left:5px;
+	margin-right:10px;
+	width:1.3em;
+	line-height:1.3em;
+	text-align:center;
+	font-size: 0.9em;
+}
+
+
+

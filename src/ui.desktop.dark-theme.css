@@ -80,6 +80,9 @@ ul.uiTabsP li:hover{
 
 
 
+
+
+
 /* FORMS */
 
 .uiDialog{
@@ -88,6 +91,48 @@ ul.uiTabsP li:hover{
 	box-shadow: 1px 1px 30px 0px rgba(255,255,255,0.1);	
 }
         
+
+
+
+
+
+
+/* BLOCKS */
+div.uiBlock h1									    /* block title */
+{
+	color:darkblue;
+	border:1px solid var(--ui-borderColor);
+	background-color:whitesmoke;
+}
+
+
+div.uiBlock > div {									
+	border-left-color: chocolate;
+	border-right-color: chocolate;
+	border-bottom-color: chocolate;
+}
+
+
+
+
+
+
+
+/* STEPS LIST */
+ul.uiSteps > li h1 {									/* step title */
+	background-color:whitesmoke;
+	border-top:1px solid var(--ui-borderColor);
+	border-bottom:1px solid var(--ui-borderColor);
+	color:darkblue;
+}
+
+ul.uiSteps > li h1 span{								/* step number */
+	background-color: lightgray;
+	border:1px solid darkgray;
+    color:dimgray;
+}
+
+
 
 
 
