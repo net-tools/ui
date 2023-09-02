@@ -1409,20 +1409,15 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 					_hide(DYNAMICFORM); 
 				});
 			
-			if ( params['cancel'] )
-			{
-				var cbcancel = params.cancel;
-				params.cancel = function(form)
-					{
+
+			var cbcancel = params.cancel;
+			params.cancel = function(form)
+				{
+					if ( cbcancel )
 						cbcancel(form);					
-						_hide(DYNAMICFORM); 
-					};
-			}
-			else
-				params.cancel = function(form)
-					{
-						_hide(DYNAMICFORM); 
-					};
+				
+					_hide(DYNAMICFORM); 
+				};
             
 							
 			// create form thanks to nettools.ui.FormBuilder ; form is created inside params.target node

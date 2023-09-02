@@ -13,7 +13,12 @@ nettools.ui.FormBuilder.i18n = {
 	BUTTON_CANCEL:'Annuler'
 }
 
-nettools.ui.desktop.dialog.i18n = {
-	BUTTON_OK : ' OK ',
-	BUTTON_CANCEL : 'Annuler'
+
+
+if ( nettools.ui.desktop )
+{
+	nettools.ui.desktop.dialog.i18n = {
+		BUTTON_OK : ' OK ',
+		BUTTON_CANCEL : 'Annuler'
+	}
 }
