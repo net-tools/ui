@@ -1343,11 +1343,6 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          */
 		showAndSubmit : function (src, w, h, cbv, cbcancel)
 		{
-			var url = src.match(/.*\?/);
-			if ( url )
-				src = url[0].substr(0, url[0].length - 1);	// remove trailing ?
-			
-			
 			nettools.ui.desktop.dialog.show(src, w, h,  
 						
 						new nettools.jscore.SubmitHandlers.Post ({
@@ -1413,7 +1408,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 			var cbcancel = params.cancel;
 			params.cancel = function(form)
 				{
-					if ( cbcancel )
+					if ( typeof cbcancel === 'function' )
 						cbcancel(form);					
 				
 					_hide(DYNAMICFORM); 
