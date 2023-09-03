@@ -498,26 +498,210 @@ nettools.ui.desktop.Tabs = class {
 
 // ==== DIALOGS ====
 
-nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
+nettools.ui.desktop.dialogs = {};
 
-	// ---- PRIVATE ----
+nettools.ui.desktop.dialogs.Window = class {
 	
-	const CONFIRM = "confirm_div";
-	const RICHEDIT = "richedit_div";
-	const DIALOG = "dialog_div";
-	const DYNAMICFORM = "dynamicform_div";
-	const CUSTOMDIALOG = "customdialog_div";
-	const PROMPT = "prompt_div";
-	const TEXTAREA = "textarea_div";
-	//_dialogHelper.MASQUE = "masque_div";
-	const NOTIFY = "notify_div";
-
+	/**
+	 * Constructor of dialog window
+	 *
+	 * @param string kind Window type (from nettools.ui.desktop.dialog consts : CONFIRM, RICHEDIT, DIALOG, DYNAMICFORM, CUSTOMDIALOG, PROMPT, TEXTAREA, NOTIFY)
+	 */
+	constructor(kind)
+	{
+		this.node = null;
+		this.nodecenter = null;
+		this.kind = kind;
+		this.content = null;
+	}
 	
 	
-	// cache of created content
-	var _divs = {};
+	
+	/**
+	 * Get buttons line
+	 *
+	 * @return string
+	 */
+	buttonsLine()
+	{
+		return `<div class="uiDialogButtons"><input type="button" value="${nettools.ui.desktop.dialog.i18n.BUTTON_OK}">&nbsp;&nbsp;&nbsp;<input type="button" value="${nettools.ui.desktop.dialog.i18n.BUTTON_CANCEL}"></div>`;
+	}
+	
+	
+	
+	/**
+	 * Build dialog window HTML 
+	 */
+	buildHTML()
+	{
+return `<div class="uiDialogWrapper" style="visibility:hidden;">
+	<div class="uiForm uiDialog ui${this.kind}Frame">
+		<div class="uiDialogContent">${this.build()}</div>
+		${this.buttonsLine()}
+	</div>
+</div>`;
+	}
+	
+	
+	
+	/**
+	 * Create dialog content
+	 *
+	 * @return string
+	 */
+	build()
+	{
+		return '';
+	}
+	
+	
+	
+	/**
+	 * Show or hide dialog window
+	 * 
+	 * @param bool visible
+	 */
+	show(visible)
+	{
+		if ( visible === undefined )
+			visible = true;
+		
+		this.nodecenter.style.visibility = visible ? 'visible' : 'hidden';
+	}
+	
+	
+	
+	/**
+	 * Hide window
+	 */
+	hide()
+	{
+		this.show(false);
+	}
+	
+	
+	
+	/**
+	 * Adjust dialog position on screen, given a width and height
+	 *
+	 * If w and h are set, window dialog is cented horizontally and vertically
+	 * If w is set, the dialog width is set, and the dialog is centered horizontally
+	 * If h is set and positive, the height is set to h and the dialog is vertically centered
+	 * If h is set and negative, the height is set to abs(h) and the dialog is anchored to 10em top
+	 * If h equals -1, the dialog is anchored to 10em top (no height set)
+	 * if h equals 0, the dialog is centered (no width/height set)
+	 * 
+	 * @param int w Width 
+	 * @param int h Height
+	 */
+	center(w, h)
+	{
+		this.node.style.height = null;
+		this.node.style.width = null;
+		this.node.classList.remove('uiDialogVCentered');
+		this.node.classList.remove('uiDialogTopAligned');
 
 
+		// if no W and H values, center
+		if ( !w && !h )
+		{
+			this.node.className += ' uiDialogVCentered';
+			return;
+		}
+
+
+		// use Size object to process values and units easily
+		var hSizeObject = new nettools.ui.Size(h);
+		var wSizeObject = new nettools.ui.Size(w);
+
+
+		// if H is set
+		if ( !hSizeObject.isNull() )
+			// and H is positive
+			if ( hSizeObject.isPositive() )
+			{
+				this.node.className += ' uiDialogVCentered';
+				if ( hSizeObject.size > 0)
+					this.node.style.height = hSizeObject.toString();
+			}
+		
+			// H not positive, set size and anchor to 10em top
+			else
+			{
+				this.node.className += ' uiDialogTopAligned';
+
+				if ( hSizeObject.size != -1 )
+					this.node.style.height = hSizeObject.negate().toString();
+			}
+
+
+		// if W is set, set width
+		if ( !wSizeObject.isNull() )
+			this.node.style.width = wSizeObject.toString();
+	}
+	
+	
+	
+	/**
+	 * Create dialog	 
+	 */
+	create()
+	{
+		document.body.insertAdjacentHTML('afterbegin', this.buildHTML());
+
+		// get newly created DOM content, inserted as first child
+		this.nodecenter = document.body.firstElementChild;
+		this.node = this.nodecenter.firstElementChild;
+		this.content = this.node.querySelector('.uiDialogContent');
+	}
+	
+	
+	
+	/** 
+	 * Get dialog ready
+	 *
+	 * @return nettools.ui.desktop.dialogs.Window
+	 */
+	prepare()
+	{
+		this.create();
+		return this;
+	}
+	
+	
+	
+	/**
+	 * Execute dialog with appropriate parameters
+	 */
+	execute()
+	{
+		throw new Error("'execute' method not defined");
+	}
+}
+
+
+
+
+
+
+
+nettools.ui.desktop.dialogs.OkCancelWindow = class extends nettools.ui.desktop.dialogs.Window {
+	
+	/** 
+	 * Constructor of a window with OK and CANCEL buttons
+	 *
+	 * @param string kind Window type (from nettools.ui.desktop.dialog consts : CONFIRM, RICHEDIT, DIALOG, DYNAMICFORM, CUSTOMDIALOG, PROMPT, TEXTAREA, NOTIFY)
+	 */	 
+	constructor(kind)
+	{
+		super(kind);
+		
+		this.ok = null;
+		this.cancel = null;
+	}
+	
+	
+	
     /**
 	 * Add a hiddden submit button so that ENTER key submits form
 	 *
@@ -526,7 +710,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 	 * @param HTMLFormElement form
 	 * @param HTMLInputElement okbtn
 	 */
-    function _addHiddenSubmit(form, okbtn)
+    static _addHiddenSubmit(form, okbtn)
     {
         form.onsubmit = function(){ 
                 // simulate click on OK button outside the form
@@ -542,23 +726,1033 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 
         form.appendChild(subm);
     }
+
+	
+	
+	/**
+	 * Create dialog	 
+	 */
+	create()
+	{
+		super.create();
+
+
+		// detect key created HTML elements
+		this.ok = this.node.querySelectorAll('.uiDialogButtons input')[0];
+		this.cancel = this.node.querySelectorAll('.uiDialogButtons input')[1];
+	}
+}
+
+
+
+
+
+
+
+nettools.ui.desktop.dialogs.DialogWindow = class extends nettools.ui.desktop.dialogs.OkCancelWindow {
+	
+	/** 
+	 * Constructor of DIALOG window
+	 *
+	 * @param string kind Window type (from nettools.ui.desktop.dialog consts : CONFIRM, RICHEDIT, DIALOG, DYNAMICFORM, CUSTOMDIALOG, PROMPT, TEXTAREA, NOTIFY)
+	 */	 
+	constructor(kind)
+	{
+		super(kind);
+		
+		this.iframe = null;
+	}
 	
 	
 	
 	/**
-	 * Add content to DOM, as first document child
-	 * 
-	 * @param HTMLDivElement div
-	 * @return HTMLDivElement
+	 * Create dialog content
+	 *
+	 * @return string
 	 */
-	function _append(div)
+	build()
 	{
-		document.body.insertBefore(div, document.body.firstChild);
-		return div;
+		return '<iframe frameborder="0" marginheight="0" marginwidth="0">...</iframe>';
 	}
+	
+	
+	
+	/**
+	 * Create dialog	 
+	 */
+	create()
+	{
+		super.create();
+
+
+		// detect key created HTML elements
+		this.iframe = this.node.querySelector('iframe'); 
+
+		
+		// add onload event to iframe
+		var that = this;
+		this.iframe.onload = function(){
+				var doc = this.contentDocument ? this.contentDocument : this.contentWindow.document;
+				if ( doc && doc.forms[0] )
+					that.constructor._addHiddenSubmit(doc.forms[0], that.ok);
+			};
+	}
+	
+	
+	
+	/**
+	 * Execute dialog with appropriate parameters
+	 * 
+	 * @param string src Path to iframe src
+	 * @param int w Dialog width ; if set, the dialog is centered
+	 * @param int h Dialog height ; if negative, anchored to 10em top and height set to abs(height); if positive, height is set and dialog is centered
+	 * @param nettools.jscore.SubmitHandlers.Handler|function(HTMLForm, HTMLElements[]) cb Submit handler or callback called when user clicks on OK button
+	 * @param function(HTMLDocument) cbv Callback called to validate inputs
+	 * @param function() cbcancel Callback called when user clicks on CANCEL button
+	 * @param bool showCancel May be set to TRUE to display CANCEL button
+	 */
+	execute(src, w, h, cb, cbv, cbcancel, showCancel)
+	{
+		if ( showCancel === undefined )
+			showCancel = true;
+
+		// center
+		this.center(w, h);
+
+
+		// OK button
+		var that = this;
+		this.ok.onclick=function(){ 
+			// if validation callback
+			if ( cbv && (typeof cbv === 'function') )
+			{
+				// if validation issue, don't close window
+				if ( !cbv (that.iframe.contentDocument ? that.iframe.contentDocument : that.iframe.contentWindow.document) )
+					return false;
+			}
+
+			// hiding dialog window
+			that.hide();
+
+			// client callback
+			var doc = that.iframe.contentDocument ? that.iframe.contentDocument : that.iframe.contentWindow.document;
+			var sub = nettools.jscore.SubmitHandlers.Callback.toSubmitHandler(cb);
+			sub.submit(doc.forms[0], doc.forms[0].elements);
+
+			return false;
+		};
+
+
+		// CANCEL button
+		this.cancel.onclick=function(){ 
+			that.hide();
+
+			if ( cbcancel&& (typeof cbcancel === 'function') )
+				cbcancel(); 
+		};
+
+		if ( !showCancel )
+		{
+			this.cancel.style.visibility = 'hidden';
+			this.cancel.style.display = 'none';
+		}
+		else
+		{
+			this.cancel.style.visibility = 'inherit';
+			this.cancel.style.display = 'inline';
+		}
+
+
+		// iframe loading
+		this.iframe.src = '';			
+		window.setTimeout(function()
+				{
+					that.iframe.src = src;
+				}, 
+
+				100
+			);
+
+
+
+		// dialog visible now
+		this.show();
+	}	
+}
+
+
+
+
+
+
+nettools.ui.desktop.dialogs.CustomDialogWindow = class extends nettools.ui.desktop.dialogs.OkCancelWindow {
+	
+	/**
+	 * Execute custom dialog built as HTML with appropriate parameters
+	 * 
+	 * @param string|function(HTMLElement) html String holding HTML data inside a top-level tag (such as P or DIV), or a callback function creating dialog inside its argument (DOM node)
+	 * @param int w Dialog width ; if set, the dialog is centered
+	 * @param int h Dialog height ; if negative, anchored to 10em top and height set to abs(height); if positive, height is set and dialog is centered
+	 * @param function(HTMLElement) cb Callback called when user clicks on OK button, receiving as argument the HTML tag the dialog is build into
+	 * @param function(HTMLElement) cbv Validation callback, receiving as argument the HTML tag the dialog is built into
+	 * @param function() cbcancel Callback called when user clicks on CANCEL button
+	 * @param bool showCancel Do we need the CANCEL button ?
+	 */
+	execute(html, w, h, cb, cbv, cbcancel, showCancel)
+	{
+		if ( showCancel === undefined )
+			showCancel = true;
+
+
+		this.content.innerHTML = "";
+
+		// creating dialog either with callback or through HTML string
+		if ( typeof html === 'function' )
+			html(this.content);
+		else
+			this.content.innerHTML = html;
+
+
+		// centering and CSS
+		this.center(w, h);
+		this.content.firstChild.style.marginTop = '0px';
+
+
+		// OK button
+		var that = this;
+		this.ok.onclick = function(){ 
+
+			// validation
+			if ( cbv && (typeof cbv === 'function') )
+			{
+				if ( !cbv (that.content) )
+					return false;
+			}
+
+
+			// hiding
+			that.hide();
+
+
+			// client callback
+			if ( cb && (typeof cb === 'function') )
+				cb(that.content);
+
+			return false;
+		};
+
+
+
+		// CANCEL button
+		this.cancel.onclick = function(){ 
+			that.hide();
+
+			if ( cbcancel && (typeof cbcancel === 'function') )
+				cbcancel(that.content);
+		};
+
+
+		if ( !showCancel )
+		{
+			this.cancel.style.visibility = 'hidden';
+			this.cancel.style.display = 'none';
+		}
+		else
+		{
+			this.cancel.style.visibility = 'inherit';
+			this.cancel.style.display = 'inline';
+		}
+
+
+		// adding hidden submit if a FORM is found inside HTML
+		var form = this.content.querySelector('form');
+		if ( form )
+			nettools.ui.desktop.dialogs.OkCancelWindow._addHiddenSubmit(form, this.ok);
+
+
+		// dialog window is now visible
+		this.show();
+
+
+		// focus on first input
+		var input = this.content.querySelector('input');
+		if ( input && (typeof input.focus == 'function') )
+			input.focus();
+		else
+			this.ok.focus();
+	}			
+	
+}
+
+
+
+
+
+
+nettools.ui.desktop.dialogs.ConfirmWindow = class extends nettools.ui.desktop.dialogs.OkCancelWindow {
+	
+	/** 
+	 * Constructor of CONFIRMWINDOW dialog
+	 *
+	 * @param string kind Window type (from nettools.ui.desktop.dialog consts : CONFIRM, RICHEDIT, DIALOG, DYNAMICFORM, CUSTOMDIALOG, PROMPT, TEXTAREA, NOTIFY)
+	 */	 
+	constructor(kind)
+	{
+		super(kind);
+		
+		this.lib = null;
+	}
+	
+	
+	
+	/**
+	 * Create dialog content
+	 *
+	 * @return string
+	 */
+	build()
+	{
+		return '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAppJREFUeNqkU0tPE1EY/e7M7UyBaZnCQKJAQVqDxMdCfBAjSuIDfMa4NHHFRl0aXejGR9yZkGiMO6OGH+BCFJWFLMREEiNKxAgmUNu0lFLaQimlnZnrd6dTGNbe5LR37nfOud+ce4cwxuB/BrV+dr8BEEQAIlAg5AAunUUEETU2bxHxBzEIjI0BM3UwDdAnzpQM7KECsOstjeqpgx1Nfq2mqlqWqMwL+by+Np/MZsa+hU/8jaSHcKkfkV7vAIcbXW91dbZe3NlW3xqNJoRHd7c4O5VvP1msV48EtYlfc+qXryFufId7C6W6ebwtqPUEW9RAPJ4SdN2AxwOTFt59ilmMYIMAyWRaCLR4A9ua1B6u2ejANHp3tdf7Y7EFUg51cLQI2ewKHN6zCHUVUZiaTsP4eAYopUTz1fpnZo1eTrMMmKEHJAreVKEAfPd0Jgu51VXo2OGGSyc1mJzJwauRHAgYiYn8YrHg5RpHBzou6pDLFyGznAcTWUSkcO+K3yo/eBEHKivrgZjgsjROg5n5hZXllYKoilIViDbx/I2Q9S9V+jadfT6/tsw1fF4K0TCGfv+MhD1elUluD3AQIsDo870W+Ly87pIVFg8vhLnG2cHwXCTWXaEoytbWYLOBN8p5Q6lUiUIPvpppRqanQulEYhhfcpjXrNTF5mf8JHyY5s1qre50Y1t7g+LTPC7ZLeP260Y/Pn74vpRMvMWAHuLNTRmhvpIBQRLxngOi9FDcphMv1QXkb0fU8k24uPvytUMjA08/g0iPsux7nS29BktbNigPIuEn4ApsJMZMEUjjMWzzvvWce9nJSvltMiB2Hi4eug3ZhsuC2LUPhP1Xodjfh88pRBK1OaeBYEO0QR3zco3zDH6SvBfUFv8JMAAv8hiRfYAaWQAAAABJRU5ErkJggg==" height="16" width="16" align="absmiddle"> <span class="uiPromptLib"></span>';
+	}
+	
+	
+	
+	/**
+	 * Create dialog	 
+	 */
+	create()
+	{
+		super.create();
+
+
+		// detect key created HTML elements
+		this.lib = this.node.querySelector('span.uiPromptLib'); 
+	}
+	
+	
+	
+	/**
+	 * Execute dialog with appropriate windows
+	 *
+	 * @param string lib Message
+	 * @param function() cb Callback called when user clicks on OK button
+	 * @param int w Dialog width ; if set, the dialog is centered ; if not set, default width used
+	 * @param int h Dialog height ; if negative, anchored to 10em top and height set to abs(height); if positive, height is set and dialog is centered ; if not set, anchored to 10em top
+	 * @param function() cbcancel Callback called when user clicks on CANCEL button
+	 */
+	execute(lib, cb, w, h, cbcancel)
+	{
+		this.lib.innerHTML = lib;
+
+		// center
+		this.center(w, (h!=nettools.ui.desktop.dialog.ALIGN_DEFAULT)?h:nettools.ui.desktop.dialog.ALIGN_TOP);
+
+
+		// ok button
+		var that = this;
+		this.ok.onclick=function(){ 
+			that.hide();
+
+			if ( cb && (typeof cb === 'function') )
+				cb();
+
+			return false;
+		};
+
+
+		// CANCEL button
+		this.cancel.onclick=function(){ 
+			that.hide();
+
+			if ( cbcancel && (typeof cbcancel === 'function') )
+				cbcancel();
+		};
+
+
+		// set window visible and focus on OK button
+		this.show();
+		this.ok.focus();
+	}
+}
+
+
+
+
+
+
+nettools.ui.desktop.dialogs.NotifyWindow = class extends nettools.ui.desktop.dialogs.Window {
+	
+	/** 
+	 * Constructor of NOTIFYWINDOW dialog
+	 *
+	 * @param string kind Window type (from nettools.ui.desktop.dialog consts : CONFIRM, RICHEDIT, DIALOG, DYNAMICFORM, CUSTOMDIALOG, PROMPT, TEXTAREA, NOTIFY)
+	 */	 
+	constructor(kind)
+	{
+		super(kind);
+		
+		this.ok = null;
+		this.lib = null;
+	}
+	
+	
+	
+	/**
+	 * Get buttons line
+	 *
+	 * @return string
+	 */
+	buttonsLine()
+	{
+		return `<div class="uiDialogButtons"><input type="submit" value="${nettools.ui.desktop.dialog.i18n.BUTTON_OK}"></div>`;
+	}
+	
+	
+	
+	/**
+	 * Create dialog content
+	 *
+	 * @return string
+	 */
+	build()
+	{
+		return '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAjBJREFUeNqkk0trE1EUx8/cO49OfGTSRNJMYsA0aVonoYh13YW71uJCKFQhKqibfgFLwYULsR/AhY+VG1d+C124kJiFIGipmoIZNUXtZDKTycz1njGpaRNU8MJv7txzzv/c5xEYY/A/TRQEAW5c5KwM+aKcR73/a5zvg84HT371wv07Apwuj0x+PZW/vArA4NO7x/f4+OGoIHLKAAiC/fBdHadSbCGZPTeTzC7OUElbQNvBOISMMnIqeqFSYs57mTkfZD1/qYS2f0rAZ5pVDmXnY/FSbn3jM6xvfAEtfjKnRDLz6BtK4PPPADi+ms6vGK71lti2DUintUVSJ84b6OvF7GlI4PNMPVgAZ49oxpyqRnXf+wGWZYX4ngWRiKYfPpqfw5hBjej7eweqCkSo6JOLhmd/hI7vQLVaBdM0YXt1FgK2CeJ40fCbmxUWsGc8vh3egtcFQPhyLsQnzpQJcbVmuw5mawtqtRo0Gg3wJQeY7ALIrqZEM2WM7esIPkROAgR5OZEpTTV3X4IXNEGiLnw1b4fItBNCBQuiqeQUA7qMGtSSLt8C38aVRLo47QVvVJFYoFAnJJG8FdIfI6rSVWMTx6ZRg1rS7UKeSspSMj2Wk+AbjPGZ+vTboA1JZbQcEcUl1Iq2zdZyxURBpruUMTzR38Vl79wM+9bO0/3vlwLVs+OF16/MNdFug/vi+Xadm+vDL/3uHyuR16Er4E3gKvEaOTLa/1LBuEQPF8hxfgowAINnMqTBUH7hAAAAAElFTkSuQmCC" height="16" width="16" align="absmiddle"> <span class="uiPromptLib"></span>';
+	}
+	
+	
+	
+	/**
+	 * Create dialog	 
+	 */
+	create()
+	{
+		super.create();
+
+
+		// detect key created HTML elements
+		this.ok = this.node.getElementsByTagName('input')[0];
+		this.lib = this.node.querySelector('span.uiPromptLib'); 
+	}
+	
+	
+
+	/**
+	 * Execute dialow with appropriate parameters
+	 *
+	 * @param string lib Message
+	 * @param function() cb Callback called when user clicks on OK button
+	 * @param int w Dialog width ; if set, the dialog is centered ; if not set, default width used
+	 * @param int h Dialog height ; if negative, anchored to 10em top and height set to abs(height); if positive, height is set and dialog is centered ; if not set, anchored to 10em top
+	 */
+	execute(lib, cb, w, h)
+	{
+		this.lib.innerHTML = lib;
+
+		// center
+		this.center(w, (h!=nettools.ui.desktop.dialog.ALIGN_DEFAULT)?h:nettools.ui.desktop.dialog.ALIGN_TOP);
+
+
+		// ok button
+		var that = this;
+		this.ok.onclick=function(){ 
+			that.hide();
+
+			if ( cb && (typeof cb === 'function') )
+				cb();
+
+			return false;
+		};
+
+
+		// set dialog window visible and focus on OK button
+		this.show();
+		this.ok.focus();
+	}	
+}
+
+
+
+
+
+
+nettools.ui.desktop.dialogs.PromptWindow = class extends nettools.ui.desktop.dialogs.OkCancelWindow {
+	
+	/** 
+	 * Constructor of PROMPTWINDOW dialog
+	 *
+	 * @param string kind Window type (from nettools.ui.desktop.dialog consts : CONFIRM, RICHEDIT, DIALOG, DYNAMICFORM, CUSTOMDIALOG, PROMPT, TEXTAREA, NOTIFY)
+	 */	 
+	constructor(kind)
+	{
+		super(kind);
+		
+		this.lib = null;
+		this.input = null;
+		this.form = null;
+	}
+	
+	
+	
+	/**
+	 * Create dialog content
+	 *
+	 * @return string
+	 */
+	build()
+	{
+		return '<div class="uiPromptLib"></div><form><input type="text" name="value" class="uiPromptValue" onkeydown="if (event.keyCode === 27) _hide(PROMPT);"></form>';
+	}
+	
+	
+	
+	/**
+	 * Create dialog	 
+	 */
+	create()
+	{
+		super.create();
+
+
+		// detect key created HTML elements
+		this.lib = this.node.querySelector('div.uiPromptLib'); 
+		this.input = this.node.querySelector('input.uiPromptValue');
+		this.form = this.node.querySelector('form');
+
+		
+		// add hidden submit
+		this.constructor._addHiddenSubmit(this.form, this.ok);
+	}
+	
+	
+	
+	/**
+	 * Execute custom prompt window dialog with appropriate parameters
+	 * 
+	 * @param string lib Prompt string
+	 * @param string defvalue Default value for prompt
+	 * @param nettools.jscore.SubmitHandlers|function(string) cb Submit handler or callback called when the user clicks on OK button, with the value of the INPUT as only argument
+	 * @param function() cbcancel Called when the user clicks on CANCEL button
+	 */
+	execute(lib, defvalue, cb, cbcancel)
+	{
+		// set lib and default value
+		this.lib.innerHTML = lib;
+		this.input.value = defvalue;
+
+
+		// sizing
+		this.center(nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_TOP);
+
+
+
+		// OK button
+		var that = this;
+		this.ok.onclick = function(){ 
+			// hiding dialog
+			that.hide();
+
+
+			// if cb is a function(string) callback, updating function declaration, because nettools.jscore.SubmitHandlers.Callback signature is (form, elements[])
+			if ( cb )
+			{
+				if ( typeof cb === 'function' )
+				{
+					var cbold = cb;
+					cb = new nettools.jscore.SubmitHandlers.Callback(
+						{ 
+							target : function(form, elements) 
+								{
+									cbold(elements[0].value);
+								}
+						});
+				}
+			}
+			else
+				cb = new nettools.jscore.SubmitHandlers.Callback.dummy();
+
+
+			// submitting through SubmitHandler.Handler process
+			cb.submit(that.form, [that.input]);
+
+			return false;
+		};
+
+
+		
+		// CANCEL button
+		this.cancel.onclick = function(){ 
+			that.hide();
+
+			if ( cbcancel && (typeof cbcancel === 'function') )
+				cbcancel();
+		};
+
+
+		// dialog window visible and focus set on input
+		this.show();
+		this.input.focus();
+	}
+}
+
 
 	
 
+	
+		
+
+nettools.ui.desktop.dialogs.TextAreaWindow = class extends nettools.ui.desktop.dialogs.OkCancelWindow {
+		
+	/** 
+	 * Constructor of TEXTAREAWINDOW dialog
+	 *
+	 * @param string kind Window type (from nettools.ui.desktop.dialog consts : CONFIRM, RICHEDIT, DIALOG, DYNAMICFORM, CUSTOMDIALOG, PROMPT, TEXTAREA, NOTIFY)
+	 */	 
+	constructor(kind)
+	{
+		super(kind);
+		
+		this.lib = null;
+		this.input = null;
+		this.form = null;
+	}
+	
+
+	
+	/**
+	 * Create dialog content
+	 *
+	 * @return string
+	 */
+	build()
+	{
+		return '<div class="uiTextAreaLib"></div><form><textarea class="uiTextAreaValue"></textarea></form>';
+	}
+	
+	
+	
+	/**
+	 * Create dialog	 
+	 */
+	create()
+	{
+		super.create();
+
+
+		// detect key created HTML elements
+		this.lib = this.node.querySelector('div.uiTextAreaLib'); 
+		this.input = this.node.querySelector('textarea');
+		this.form = this.node.querySelector('form');
+	}
+
+
+	
+	/**
+	 * Execute custom prompt window with appropriate parameters
+	 * 
+	 * @param string lib Prompt string
+	 * @param string defvalue Default value for prompt
+	 * @param nettools.jscore.SubmitHandlers|function(string) cb Submit handler or callback called when the user clicks on OK button, with the value of the INPUT as only argument
+	 * @param string textareacssclass Makes it possible to apply a custom style to textarea (so that proper CSS width/height/format can be applied)
+	 * @param function() cbcancel Called when the user clicks on CANCEL button
+	 */
+	execute(lib, defvalue, cb, textareacssclass, cbcancel)
+	{
+		// set lib and default value
+		this.lib.innerHTML = lib;
+		this.input.value = defvalue;
+
+		this.input.className = 'uiPromptValue ' + textareacssclass;
+
+
+		// sizing
+		this.center(nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_CENTER);
+
+
+
+		// OK button
+		var that = this;
+		this.ok.onclick=function(){ 
+			// hiding dialog
+			that.hide();
+
+
+			// if cb is a function(string) callback, updating function declaration, because nettools.jscore.SubmitHandlers.Callback signature is (form, elements[])
+			if ( cb )
+			{
+				if ( typeof cb === 'function' )
+				{
+					var cbold = cb;
+					cb = new nettools.jscore.SubmitHandlers.Callback(
+						{ 
+							target : function(form, elements) 
+								{
+									cbold(elements[0].value);
+								}
+						});
+				}
+			}
+			else
+				cb = new nettools.jscore.SubmitHandlers.Callback.dummy();
+
+
+			// submitting through SubmitHandler.Handler process
+			cb.submit(that.form, [that.input]);
+
+			return false;
+		};
+
+
+		// CANCEL button
+		this.cancel.onclick=function(){ 
+			that.hide();
+
+			if ( cbcancel && (typeof cbcancel === 'function') )
+				cbcancel();
+		};
+
+
+		// dialog window visible and focus set on input
+		this.show();
+		this.input.focus();
+	}
+}
+
+
+	
+	
+		
+
+nettools.ui.desktop.dialogs.DynamicFormWindow = class extends nettools.ui.desktop.dialogs.OkCancelWindow {
+	
+	/** 
+	 * Constructor of DYNAMICFORMWINDOW dialog
+	 *
+	 * @param string kind Window type (from nettools.ui.desktop.dialog consts : CONFIRM, RICHEDIT, DIALOG, DYNAMICFORM, CUSTOMDIALOG, PROMPT, TEXTAREA, NOTIFY)
+	 */	 
+	constructor(kind)
+	{
+		super(kind);
+		
+		this.form = null;
+	}
+	
+	
+	
+	/**
+	 * Create dialog content
+	 *
+	 * @return string
+	 */
+	build()
+	{
+		return '<form></form>';
+	}
+	
+	
+	
+	/**
+	 * Create dialog	 
+	 */
+	create()
+	{
+		super.create();
+
+
+		// detect key created HTML elements
+		this.form = this.node.querySelector('form');
+	}
+	
+	
+	
+	/**
+	 * Execute dialog window with dynamically created fields
+	 *
+	 * @param object params Object litteral describing fields (see nettools.ui.FormBuilder)
+	 * @param string formClassName CSS style to apply to form
+	 * @param int w Dialog width ; if set, the dialog is centered
+	 * @param int h Dialog height ; if negative, anchored to 10em top and height set to abs(height); if positive, height is set and dialog is centered ; if not set, dialog is centered (no height set)
+	 * @param function(HTMLFormElement, HTMLInputElement[]) onload Callback called when dialog window is ready
+	 */
+	execute(params, formClassName, w, h, onload)
+	{
+		// set target container form nettools.ui.FormBuilder
+		params.target = this.form;
+
+
+		// empty form, because it may have been used before
+		params.target.innerHTML = "";
+		var btns = this.node.querySelector('div.uiDialogButtons');
+		if ( btns )
+			btns.parentNode.removeChild(btns);
+
+
+		// init css
+		params.target.className = 'uiForm';
+		if ( formClassName )
+			formClassName.split(/ /).forEach(function(v){ params.target.classList.add(v); });
+
+
+		// add more processing to SUBMIT and CANCEL handlers
+		var that = this;
+		params.submit = nettools.jscore.SubmitHandlers.Callback.toSubmitHandler(params['submit']).customEvent(
+			function(form, elements)
+			{
+				that.hide();
+			});
+
+
+		var cbcancel = params.cancel;
+		params.cancel = function(form)
+			{
+				if ( typeof cbcancel === 'function' )
+					cbcancel(form);					
+
+				that.hide(); 
+			};
+
+
+		// create form thanks to nettools.ui.FormBuilder ; form is created inside params.target node
+		nettools.ui.FormBuilder.createForm(params);
+
+
+		// centering and styling
+		this.center(w, h);
+		params.target.firstChild.style.marginTop = '0px';
+
+
+		// move buttons DIV outside form
+		var btns = params.target.querySelector('.FormBuilderButtons');
+		btns.className = 'uiDialogButtons';
+		this.node.appendChild(btns);
+		btns.insertBefore(document.createTextNode('\u00A0\u00A0\u00A0'), btns.lastChild);
+
+
+		// add form 'onsubmit' event on SUBMIT button since we are outside the form, auto-submit can't work
+		btns.firstChild.onclick = params.target.onsubmit;
+
+
+		// add hidden submit inside form, so that ENTER key submit works
+		nettools.ui.desktop.dialogs.OkCancelWindow._addHiddenSubmit(params.target, btns.firstChild);
+
+
+		// dialog window is now visible
+		this.show();
+
+
+		// set focus to first field
+		if ( params.target.elements[0].focus )
+			params.target.elements[0].focus();
+
+
+		// custom onload event 
+		if ( typeof onload == 'function' )
+			onload(params.target, params.target.elements);
+	}
+}
+
+
+
+
+	
+	
+		
+
+nettools.ui.desktop.dialogs.RichEditWindow = class extends nettools.ui.desktop.dialogs.OkCancelWindow {
+	
+	/** 
+	 * Constructor of RICHEDITWINDOW dialog
+	 *
+	 * @param string kind Window type (from nettools.ui.desktop.dialog consts : CONFIRM, RICHEDIT, DIALOG, DYNAMICFORM, CUSTOMDIALOG, PROMPT, TEXTAREA, NOTIFY)
+	 */	 
+	constructor(kind)
+	{
+		super(kind);
+		
+		this.textarea = null;
+	}
+	
+	
+	
+	/**
+	 * Create dialog content
+	 *
+	 * @return string
+	 */
+	build()
+	{
+		return '<form><textarea style="visibility:hidden;" name="dialog_rte"></textarea></form>';
+	}
+	
+	
+	
+	/**
+	 * Create dialog	 
+	 */
+	create()
+	{
+		super.create();
+
+
+		// detect key created HTML elements
+		this.textarea = this.node.querySelector('textarea');
+	}
+	
+	
+	
+	/**
+	 * Execute Richedit dialog with appropriate parameters
+	 *
+	 * Window sizing is particular, since richEdit requires a large viewport :
+	 *   - if W is not set, then W = 80% of parent
+	 *   - if H is not set, then richedit height equals 75% of window.innerHeight
+	 *   - if H is set and positive, then richedit height is set with H, and the dialog window is centered
+	 *   - if H is set and negative, then richedit height is set with abs(H), and the dialog window is anchored to 10em top
+	 *
+	 * @param string def Default value
+	 * @param int w Dialog window width
+	 * @param int h Dialog window height
+	 * @param function(string) cb Callback called when the user clicks on OK button
+	 * @param function() cbcancel Callback called when the user clicks on CANCEL button
+	 */
+	execute(def, w, h, cb, cbcancel)
+	{
+		if ( !window.tinymce )
+		{
+			nettools.ui.desktop.dialog.prompt('TINYMCE missing !', def, cb, true);
+			return;
+		}
+
+
+		// CSS reset
+		this.node.classList.remove('uiDialogVCentered');
+		this.node.classList.remove('uiDialogTopAligned');
+		this.node.classList.remove('uiRichEditFrameWMax');
+		this.node.style.width = null;
+
+
+		// - set width or center with max width
+		if ( !w )
+			this.node.className += ' uiRichEditFrameWMax';
+		else
+			this.node.style.width = new nettools.ui.Size(w).toString();
+
+
+		// - set height 
+		var hObject = new nettools.ui.Size(h);
+
+		if ( hObject.isNull() || hObject.isPositive() || (hObject.unit != 'px') )
+			this.node.className += ' uiDialogVCentered';
+
+
+		// if H negative and unit is 'px', set height to abs(H) and anchor to 10em top
+		if ( hObject.isNegative() && (hObject.unit == 'px') )
+		{
+			this.node.className += ' uiDialogTopAligned';
+			hObject = hObject.negate();
+		}
+
+
+		// si other unit than PX
+		if ( hObject.unit != 'px' )
+			hObject = new nettools.ui.Size(null);
+
+
+		// content
+		this.textarea.value = def;
+
+
+		var that = this;
+		tinymce.init({
+			/* textarea */
+			target: this.textarea,
+
+			/* setup events on OK and CANCEL */
+			setup : function(ed)
+				{
+					ed.on('init', function(e)
+						{
+							that.ok.onclick=function(){ 
+								// closing dialog window et TMCE
+								that.hide();
+
+								var val = ed.getContent();
+								try{ed.remove();}catch (e){}
+
+								// callback with value
+								if ( cb && (typeof cb === 'function') )
+									cb(val);
+
+								return false;
+							};
+
+
+
+							that.cancel.onclick=function(){ 
+								// closing dialog window et TMCE
+								that.hide();
+
+								try{ed.remove();}catch (e){}
+
+
+								// callback
+								if ( cbcancel && (typeof cbcancel === 'function') )
+									cbcancel();
+							};
+						});
+				},
+
+			/* height for editable field */
+			height:(hObject.isNull() ? (window.innerHeight - 140) : hObject.size) + 'px',
+
+			/* URL handling : do not rewrite them */
+			remove_script_host : false,
+			relative_urls : false,
+
+			/* langue */
+/*				language : 'fr_FR',
+			language_url : '/lib/tinymce/langs/fr_FR.js',*/
+
+			/* plugins */
+			plugins: "lists advlist anchor autolink charmap code fullscreen link nonbreaking paste print preview quickbars searchreplace visualblocks visualchars",				
+
+			/* toolbar */
+			toolbar: 'undo redo | forecolor backcolor bold italic | alignleft aligncenter alignright alignjustify | outdent indent bullist numlist | preview code | charmap nonbreaking'
+		});
+
+
+
+		// set the dialog window visible
+		this.show();
+	}
+}
+
+
+
+
+
+
+
+
+nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
+
+	// ---- PRIVATE ----
+	
+	const CONFIRM = "Confirm";
+	const RICHEDIT = "RichEdit";
+	const DIALOG = "Dialog";
+	const DYNAMICFORM = "DynamicForm";
+	const CUSTOMDIALOG = "CustomDialog";
+	const PROMPT = "Prompt";
+	const TEXTAREA = "TextArea";
+	const NOTIFY = "Notify";
+
+	
+	
+	// cache of created content
+	var _divs = {};
+
+
+	
 	/**
 	 * Get a dialog node or create it if not in cache
 	 *
@@ -571,334 +1765,16 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 	}
 
 
-
-	/**
-	 * Hide a dialog
-	 *
-	 * @param string div Dialog identifier (see consts declarations above : CONFIRM, RICHEDIT, DIALOG, DYNAMIC_FORM, CUSTOM_DIALOG, PROMPT, TEXTAREA, NOTIFY)
-	 */
-	function _hide(div)
-	{
-		_show(div, 'hidden');
-	}
-
-
-
-	/** 
-	 * Set a dialog visible or hidden
-	 * 
-	 * @param string div Dialog identifier (see consts declarations above : CONFIRM, RICHEDIT, DIALOG, DYNAMIC_FORM, CUSTOM_DIALOG, PROMPT, TEXTAREA, NOTIFY)
-	 * @param string visible CSS visibility value
-	 */
-	function _show(div, visible)
-	{
-		_get(div).nodecenter.style.visibility = visible || 'visible';
-	}
-
-
 	
-	/**
-	 * Adjust dialog position on screen, given a width and height
-	 *
-	 * If w and h are set, window dialog is cented horizontally and vertically
-	 * If w is set, the dialog width is set, and the dialog is centered horizontally
-	 * If h is set and positive, the height is set to h and the dialog is vertically centered
-	 * If h is set and negative, the height is set to abs(h) and the dialog is anchored to 10em top
-	 * If h equals -1, the dialog is anchored to 10em top (no height set)
-	 * if h equals 0, the dialog is centered (no width/height set)
-	 * 
-	 * @param string div Dialog identifier (see consts declarations above : CONFIRM, RICHEDIT, DIALOG, DYNAMIC_FORM, CUSTOM_DIALOG, PROMPT, TEXTAREA, NOTIFY)
-	 * @param int w 
-	 * @param int h
-	 */
-	function _center(div, w, h)
-	{
-		// reinit values, because dialog nodes are reused between calls
-		var d = _get(div);
-		d.node.style.height = null;
-		d.node.style.width = null;
-		d.node.className = d.node.className.replace(/ (uiDialogVCentered|uiDialogTopAligned)/g, '');
-
-
-		// if no W and H values, center
-		if ( !w && !h )
-		{
-			d.node.className += ' uiDialogVCentered';
-			return;
-		}
-
-
-		// use Size object to process values and units easily
-		var hSizeObject = new nettools.ui.Size(h);
-		var wSizeObject = new nettools.ui.Size(w);
-
-
-		// if H is set
-		if ( !hSizeObject.isNull() )
-			// and H is positive
-			if ( hSizeObject.isPositive() )
-			{
-				d.node.className += ' uiDialogVCentered';
-				if ( hSizeObject.size > 0)
-					d.node.style.height = hSizeObject.toString();
-			}
-		
-			// H not positive, set size and anchor to 10em top
-			else
-			{
-				d.node.className += ' uiDialogTopAligned';
-
-				if ( hSizeObject.size != -1 )
-					d.node.style.height = hSizeObject.negate().toString();
-			}
-
-
-		// if W is set, set width
-		if ( !wSizeObject.isNull() )
-			d.node.style.width = wSizeObject.toString();
-	}
-		
-		
-
 	// create dialog node
 	function _createContent(div)
 	{
-		var btns = `<div class="uiDialogButtons"><input type="button" value="${nettools.ui.desktop.dialog.i18n.BUTTON_OK}">&nbsp;&nbsp;&nbsp;<input type="button" value="${nettools.ui.desktop.dialog.i18n.BUTTON_CANCEL}"></div>`;
+		// select class constructor
+		var construct = nettools.ui.desktop.dialogs[div + 'Window'];
+		if ( !construct )
+			throw new Error(`Class constructor '${div}' for dialog window not found`);
 		
-
-		switch ( div )
-		{
-			case RICHEDIT :
-				document.body.insertAdjacentHTML('afterbegin', 
-					`
-					<div class="uiDialogWrapper" style="visibility:hidden;">
-						<div class="uiForm uiDialog uiRichEditCadre">
-							<form>
-								<textarea style="visibility:hidden;" name="dialog_rte"></textarea>
-								${btns}
-							</form>
-						</div>
-					</div>
-					`);
-				
-				
-				// get newly created DOM content, inserted as first child
-				var node = document.body.firstElementChild;
-
-
-				return {
-					nodecenter : node,
-					node : node.firstElementChild,
-					textarea : node.querySelector('textarea'),
-					ok : node.getElementsByTagName('input')[0],
-					cancel : node.getElementsByTagName('input')[1]
-				};
-
-
-
-			case DIALOG :
-				document.body.insertAdjacentHTML('afterbegin', 
-					`
-					<div class="uiDialogWrapper" style="visibility:hidden;">
-						<div class="uiForm uiDialog uiDialogCadre">
-							<div class="uiDialogContent">
-								<iframe frameborder="0" marginheight="0" marginwidth="0">...</iframe>
-							</div>
-							${btns}
-						</div>
-					</div>
-					`);
-				
-
-				// get newly created DOM content, inserted as first child
-				var node = document.body.firstElementChild;
-				
-				
-				// add onload event to iframe
-				var iframe = node.querySelector('iframe');
-				iframe.onload = function(){
-						var doc = this.contentDocument ? this.contentDocument : this.contentWindow.document;
-						if ( doc && doc.forms[0] )
-							_addHiddenSubmit(doc.forms[0], _get(DIALOG).ok);
-					};
-
-				
-				return {
-					nodecenter : node,
-					node : node.firstElementChild,
-					iframe : iframe,
-					ok : node.getElementsByTagName('input')[0],
-					cancel : node.getElementsByTagName('input')[1]
-				};
-
-
-
-			case CUSTOMDIALOG :
-				document.body.insertAdjacentHTML('afterbegin', 
-					`
-					<div class="uiDialogWrapper" style="visibility:hidden;">
-						<div class="uiForm uiDialog uiCustomDialogCadre">
-							<div class="uiDialogContent"></div>
-							${btns}
-						</div>
-					</div>
-					`);
-				
-
-				// get newly created DOM content, inserted as first child
-				var node = document.body.firstElementChild;
-
-				
-				return {
-					nodecenter : node,
-					node : node.firstElementChild,
-					content : node.querySelector('.uiDialogContent'),
-					ok : node.getElementsByTagName('input')[0],
-					cancel : node.getElementsByTagName('input')[1]
-				};	
-
-
-
-			case CONFIRM :
-				document.body.insertAdjacentHTML('afterbegin', 
-					`
-					<div class="uiDialogWrapper" style="visibility:hidden;">
-						<div class="uiForm uiDialog uiConfirmCadre">
-							<div class="uiDialogContent"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAppJREFUeNqkU0tPE1EY/e7M7UyBaZnCQKJAQVqDxMdCfBAjSuIDfMa4NHHFRl0aXejGR9yZkGiMO6OGH+BCFJWFLMREEiNKxAgmUNu0lFLaQimlnZnrd6dTGNbe5LR37nfOud+ce4cwxuB/BrV+dr8BEEQAIlAg5AAunUUEETU2bxHxBzEIjI0BM3UwDdAnzpQM7KECsOstjeqpgx1Nfq2mqlqWqMwL+by+Np/MZsa+hU/8jaSHcKkfkV7vAIcbXW91dbZe3NlW3xqNJoRHd7c4O5VvP1msV48EtYlfc+qXryFufId7C6W6ebwtqPUEW9RAPJ4SdN2AxwOTFt59ilmMYIMAyWRaCLR4A9ua1B6u2ejANHp3tdf7Y7EFUg51cLQI2ewKHN6zCHUVUZiaTsP4eAYopUTz1fpnZo1eTrMMmKEHJAreVKEAfPd0Jgu51VXo2OGGSyc1mJzJwauRHAgYiYn8YrHg5RpHBzou6pDLFyGznAcTWUSkcO+K3yo/eBEHKivrgZjgsjROg5n5hZXllYKoilIViDbx/I2Q9S9V+jadfT6/tsw1fF4K0TCGfv+MhD1elUluD3AQIsDo870W+Ly87pIVFg8vhLnG2cHwXCTWXaEoytbWYLOBN8p5Q6lUiUIPvpppRqanQulEYhhfcpjXrNTF5mf8JHyY5s1qre50Y1t7g+LTPC7ZLeP260Y/Pn74vpRMvMWAHuLNTRmhvpIBQRLxngOi9FDcphMv1QXkb0fU8k24uPvytUMjA08/g0iPsux7nS29BktbNigPIuEn4ApsJMZMEUjjMWzzvvWce9nJSvltMiB2Hi4eug3ZhsuC2LUPhP1Xodjfh88pRBK1OaeBYEO0QR3zco3zDH6SvBfUFv8JMAAv8hiRfYAaWQAAAABJRU5ErkJggg==" height="16" width="16" align="absmiddle"> <span class="uiPromptLib"></span></div>
-							${btns}
-						</div>
-					</div>
-					`);
-				
-
-				// get newly created DOM content, inserted as first child
-				var node = document.body.firstElementChild;
-
-				
-				return {
-					nodecenter : node,
-					node : node.firstElementChild,
-					lib : node.querySelector('span.uiPromptLib'),
-					ok : node.getElementsByTagName('input')[0],
-					cancel : node.getElementsByTagName('input')[1]
-				};
-
-
-
-			case NOTIFY :
-				document.body.insertAdjacentHTML('afterbegin', 
-					`
-					<div class="uiDialogWrapper" style="visibility:hidden;">
-						<div class="uiForm uiDialog uiConfirmCadre">
-							<div class="uiDialogContent"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAjBJREFUeNqkk0trE1EUx8/cO49OfGTSRNJMYsA0aVonoYh13YW71uJCKFQhKqibfgFLwYULsR/AhY+VG1d+C124kJiFIGipmoIZNUXtZDKTycz1njGpaRNU8MJv7txzzv/c5xEYY/A/TRQEAW5c5KwM+aKcR73/a5zvg84HT371wv07Apwuj0x+PZW/vArA4NO7x/f4+OGoIHLKAAiC/fBdHadSbCGZPTeTzC7OUElbQNvBOISMMnIqeqFSYs57mTkfZD1/qYS2f0rAZ5pVDmXnY/FSbn3jM6xvfAEtfjKnRDLz6BtK4PPPADi+ms6vGK71lti2DUintUVSJ84b6OvF7GlI4PNMPVgAZ49oxpyqRnXf+wGWZYX4ngWRiKYfPpqfw5hBjej7eweqCkSo6JOLhmd/hI7vQLVaBdM0YXt1FgK2CeJ40fCbmxUWsGc8vh3egtcFQPhyLsQnzpQJcbVmuw5mawtqtRo0Gg3wJQeY7ALIrqZEM2WM7esIPkROAgR5OZEpTTV3X4IXNEGiLnw1b4fItBNCBQuiqeQUA7qMGtSSLt8C38aVRLo47QVvVJFYoFAnJJG8FdIfI6rSVWMTx6ZRg1rS7UKeSspSMj2Wk+AbjPGZ+vTboA1JZbQcEcUl1Iq2zdZyxURBpruUMTzR38Vl79wM+9bO0/3vlwLVs+OF16/MNdFug/vi+Xadm+vDL/3uHyuR16Er4E3gKvEaOTLa/1LBuEQPF8hxfgowAINnMqTBUH7hAAAAAElFTkSuQmCC" height="16" width="16" align="absmiddle"> <span class="uiPromptLib"></span></div>
-							<div class="uiDialogButtons"><input type="submit" value="${nettools.ui.desktop.dialog.i18n.BUTTON_OK}"></div>
-						</div>
-					</div>
-					`);
-				
-
-				// get newly created DOM content, inserted as first child
-				var node = document.body.firstElementChild;
-
-				
-				return {
-					nodecenter : node,
-					node : node.firstElementChild,
-					lib : node.querySelector('span.uiPromptLib'),
-					ok : node.getElementsByTagName('input')[0]
-				};
-
-
-
-			case PROMPT :
-				document.body.insertAdjacentHTML('afterbegin', 
-					`
-					<div class="uiDialogWrapper" style="visibility:hidden;">
-						<div class="uiForm uiDialog uiPromptCadre">
-							<div class="uiDialogContent">
-								<div class="uiPromptLib"></div>
-								<form><input type="text" name="value" class="uiPromptValue" onkeydown="if (event.keyCode === 27) _hide(PROMPT);"></form>
-							</div>
-							${btns}
-						</div>
-					</div>
-					`);
-				
-
-				// get newly created DOM content, inserted as first child
-				var node = document.body.firstElementChild;
-				
-				var form = node.querySelector('form');				
-				_addHiddenSubmit(form, node.querySelector('input[type="button"]:first-child'));
-
-				//`<div class="uiDialogButtons"><input type="button"
-
-				return {
-					nodecenter : node,
-					node : node.firstElementChild,
-					lib : node.querySelector('div.uiPromptLib'),
-					input : node.querySelector('input.uiPromptValue'),
-					form : form,
-					ok : node.querySelectorAll('.uiDialogButtons input')[0],
-					cancel : node.querySelectorAll('.uiDialogButtons input')[1],
-				};
-
-
-
-			case TEXTAREA :
-				document.body.insertAdjacentHTML('afterbegin', 
-					`
-					<div class="uiDialogWrapper" style="visibility:hidden;">
-						<div class="uiForm uiDialog uiTextAreaCadre">
-							<div class="uiDialogContent">
-								<div class="uiTextAreaLib"></div>
-								<form><textarea class="uiTextAreaValue"></textarea></form>
-							</div>
-							${btns}
-						</div>
-					</div>
-					`);
-				
-
-				// get newly created DOM content, inserted as first child
-				var node = document.body.firstElementChild;
-
-				
-				return {
-					nodecenter : node,
-					node : node.firstElementChild,
-					lib : node.querySelector('div.uiTextAreaLib'),
-					input : node.querySelector('textarea'),
-					form : node.querySelector('form'),
-					ok : node.querySelectorAll('.uiDialogButtons input')[0],
-					cancel : node.querySelectorAll('.uiDialogButtons input')[1],
-				};				
-
-
-
-			case DYNAMICFORM :
-				document.body.insertAdjacentHTML('afterbegin', 
-					`
-					<div class="uiDialogWrapper" style="visibility:hidden;">
-						<div class="uiForm uiDialog uiDynamicFormCadre">
-							<div class="uiDialogContent">
-								<form></form>
-							</div>
-						</div>
-					</div>
-					`);
-				
-
-				// get newly created DOM content, inserted as first child
-				var node = document.body.firstElementChild;
-
-
-				return {
-					nodecenter : node,
-					node : node.firstElementChild,
-					form : node.querySelector('form')
-				};
-		}
+		return new construct(div).prepare();
 	}
 
 	// ---- /PRIVATE
@@ -977,7 +1853,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
         
 		
 		/**
-         * Richedit with Promise handling
+         * Richedit 
          *
          * Window sizing is particular, since richEdit requires a large viewport :
          *   - if W is not set, then W = 80% of parent
@@ -993,112 +1869,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          */
 		richEdit : function(def, w, h, cb, cbcancel)
 		{
-			if ( !window.tinymce )
-			{
-				nettools.ui.desktop.dialog.prompt('TINYMCE missing !', def, cb, true);
-				return;
-			}
-
-			
-			// créer ou obtenir DIV
-			var div = _get(RICHEDIT);
-            
-            
-            // raz styles
-            div.node.className = div.node.className.replace(/ (uiDialogVCentered|uiDialogTopAligned|uiRichEditCadreWMax)/g, '');
-            div.node.style.width = null;
-            
-            
-            // - set width or center with max width
-            if ( !w )
-                div.node.className += ' uiRichEditCadreWMax';
-            else
-                div.node.style.width = new nettools.ui.Size(w).toString();
-                
-            
-            // - set height 
-            var hObject = new nettools.ui.Size(h);
-            
-            if ( hObject.isNull() || hObject.isPositive() || (hObject.unit != 'px') )
-                div.node.className += ' uiDialogVCentered';
-            
-            
-            // if H negative and unit is 'px', set height to abs(H) and anchor to 10em top
-            if ( hObject.isNegative() && (hObject.unit == 'px') )
-            {
-                div.node.className += ' uiDialogTopAligned';
-                hObject = hObject.negate();
-            }
-            
-            
-            // si other unit than PX
-            if ( hObject.unit != 'px' )
-                hObject = new nettools.ui.Size(null);
-                
-
-			// content
-			div.textarea.value = def;
-			
-			
-			tinymce.init({
-				/* textarea */
-				target: div.textarea,
-				
-				/* setup events on OK and CANCEL */
-				setup : function(ed)
-					{
-						ed.on('init', function(e)
-							{
-								div.ok.onclick=function(){ 
-									// closing dialog window et TMCE
-									_hide(RICHEDIT);
-						
-									var val = ed.getContent();
-									try{ed.remove();}catch (e){}
-									
-									// callback with value
-									if ( cb && (typeof cb === 'function') )
-										cb(val);
-						
-									return false;
-								};
-								
-								
-
-								div.cancel.onclick=function(){ 
-									// closing dialog window et TMCE
-									_hide(RICHEDIT);
-									try{ed.remove();}catch (e){}
-									
-									
-									// callback
-									if ( cbcancel && (typeof cbcancel === 'function') )
-										cbcancel();
-								};
-							});
-					},
-				
-				/* height for editable field */
-				height:(hObject.isNull() ? (window.innerHeight - 140) : hObject.size) + 'px',
-				
-				/* URL handling : do not rewrite them */
-				remove_script_host : false,
-				relative_urls : false,
-				
-				/* langue */
-/*				language : 'fr_FR',
-				language_url : '/lib/tinymce/langs/fr_FR.js',*/
-				
-				/* plugins */
-				plugins: "lists advlist anchor autolink charmap code fullscreen link nonbreaking paste print preview quickbars searchreplace visualblocks visualchars",				
-				
-				/* toolbar */
-				toolbar: 'undo redo | forecolor backcolor bold italic | alignleft aligncenter alignright alignjustify | outdent indent bullist numlist | preview code | charmap nonbreaking'
-			});
-
-
-			// set the dialog window visible
-			_show(RICHEDIT);
+			_get(RICHEDIT).execute(def, w, h, cb, cbcancel);
 		},	
 		
 		
@@ -1135,27 +1906,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          */
 		notify : function(lib, cb, w, h)
 		{
-			var div = _get(NOTIFY);
-			div.lib.innerHTML = lib;
-			
-			// center
-            _center(NOTIFY, w, (h!=nettools.ui.desktop.dialog.ALIGN_DEFAULT)?h:nettools.ui.desktop.dialog.ALIGN_TOP);
-			
-
-			// ok button
-			div.ok.onclick=function(){ 
-				_hide(NOTIFY);
-			
-				if ( cb && (typeof cb === 'function') )
-					cb();
-				
-				return false;
-			};
-		
-		
-			// set dialog window visible and focus on OK button
-			_show(NOTIFY);
-			div.ok.focus();
+			_get(NOTIFY).execute(lib, cb, w, h);
 		},
 		
 		
@@ -1193,36 +1944,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          */
 		confirm : function (lib, cb, w, h, cbcancel)
 		{
-			var div = _get(CONFIRM);
-			div.lib.innerHTML = lib;
-			
-			// center
-            _center(CONFIRM, w, (h!=nettools.ui.desktop.dialog.ALIGN_DEFAULT)?h:nettools.ui.desktop.dialog.ALIGN_TOP);
-			
-			
-			// ok button
-			div.ok.onclick=function(){ 
-				_hide(CONFIRM);
-			
-				if ( cb && (typeof cb === 'function') )
-					cb();
-				
-				return false;
-			};
-		
-		
-			// CANCEL button
-			div.cancel.onclick=function(){ 
-				_hide(CONFIRM);
-				
-				if ( cbcancel && (typeof cbcancel === 'function') )
-					cbcancel();
-			};
-			
-			
-			// set window visible and focus on OK button
-			_show(CONFIRM);
-			div.ok.focus();
+			_get(CONFIRM).execute(lib, cb, w, h, cbcancel);
 		},
 		
 	
@@ -1252,7 +1974,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
         
 	
 		/**
-         * Display an iframe as dialog window and returns a Promise
+         * Display an iframe as dialog window 
          * 
          * @param string src Path to iframe src
          * @param int w Dialog width ; if set, the dialog is centered
@@ -1264,70 +1986,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          */
 		show : function(src, w, h, cb, cbv, cbcancel, showCancel)
 		{
-			var div = _get(DIALOG);
-			if ( showCancel === undefined )
-				showCancel = true;
-
-			// center
-			_center(DIALOG, w, h);
-			
-			
-			// OK button
-			div.ok.onclick=function(){ 
-				// if validation callback
-				if ( cbv && (typeof cbv === 'function') )
-				{
-					// if validation issue, don't close window
-					if ( !cbv (div.iframe.contentDocument ? div.iframe.contentDocument : div.iframe.contentWindow.document) )
-						return false;
-				}
-	
-				// hiding dialog window
-				_hide(DIALOG);
-	
-				// client callback
-				var doc = div.iframe.contentDocument ? div.iframe.contentDocument : div.iframe.contentWindow.document;
-				var sub = nettools.jscore.SubmitHandlers.Callback.toSubmitHandler(cb);
-				sub.submit(doc.forms[0], doc.forms[0].elements);
-	
-				return false;
-			};
-			
-			
-			// CANCEL button
-			div.cancel.onclick=function(){ 
-				_hide(DIALOG);
-				
-				if ( cbcancel&& (typeof cbcancel === 'function') )
-					cbcancel(); 
-			};
-			
-			if ( !showCancel )
-			{
-				div.cancel.style.visibility = 'hidden';
-				div.cancel.style.display = 'none';
-			}
-			else
-			{
-				div.cancel.style.visibility = 'inherit';
-				div.cancel.style.display = 'inline';
-			}
-			
-			
-			// iframe loading
-			div.iframe.src = '';			
-			window.setTimeout(function()
-					{
-						div.iframe.src = src;
-					}, 
-					
-					100
-				);
-				
-		
-		
-			// dialog visible now
-			_show(DIALOG);
+			_get(DIALOG).execute(src, w, h, cb, cbv, cbcancel, showCancel);
 		},
 		
         
@@ -1380,77 +2039,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          */
 		dynamicForm : function (params, formClassName, w, h, onload)
 		{
-			// set target container form nettools.ui.FormBuilder
-			params.target = _get(DYNAMICFORM).form;
-			
-            
-			// empty form, because it may have been used before
-			params.target.innerHTML = "";
-            var btns = _get(DYNAMICFORM).node.querySelector('div.uiDialogButtons');
-            if ( btns )
-                btns.parentNode.removeChild(btns);
-			
-            
-			// init css
-			params.target.className = 'uiForm';
-			if ( formClassName )
-				formClassName.split(/ /).forEach(function(v){ params.target.classList.add(v); });
-	
-            
-			// add more processing to SUBMIT and CANCEL handlers
-			params.submit = nettools.jscore.SubmitHandlers.Callback.toSubmitHandler(params['submit']).customEvent(
-				function(form, elements)
-				{
-					_hide(DYNAMICFORM); 
-				});
-			
-
-			var cbcancel = params.cancel;
-			params.cancel = function(form)
-				{
-					if ( typeof cbcancel === 'function' )
-						cbcancel(form);					
-				
-					_hide(DYNAMICFORM); 
-				};
-            
-							
-			// create form thanks to nettools.ui.FormBuilder ; form is created inside params.target node
-			nettools.ui.FormBuilder.createForm(params);
-						
-            
-			// centering and styling
-			_center(DYNAMICFORM, w, h);
-			params.target.firstChild.style.marginTop = '0px';
-            
-            
-            // move buttons DIV outside form
-            var btns = params.target.querySelector('.FormBuilderButtons');
-            btns.className = 'uiDialogButtons';
-            _get(DYNAMICFORM).node.appendChild(btns);
-            btns.insertBefore(document.createTextNode('\u00A0\u00A0\u00A0'), btns.lastChild);
-            
-            
-            // add form 'onsubmit' event on SUBMIT button since we are outside the form, auto-submit can't work
-            btns.firstChild.onclick = params.target.onsubmit;
-
-            
-            // add hidden submit inside form, so that ENTER key submit works
-            _addHiddenSubmit(params.target, btns.firstChild);
-            
-
-			// dialog window is now visible
-			_show(DYNAMICFORM);
-
-            
-			// set focus to first field
-			if ( params.target.elements[0].focus )
-				params.target.elements[0].focus();
-
-			
-			// custom onload event 
-			if ( typeof onload == 'function' )
-				onload(params.target, params.target.elements);
+			_get(DYNAMICFORM).execute(params, formClassName, w, h, onload);
 		},
 	
 	
@@ -1492,87 +2081,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          */
 		customDialog : function (html, w, h, cb, cbv, cbcancel, showCancel)
 		{
-			var target = _get(CUSTOMDIALOG);
-			
-			if ( showCancel === undefined )
-				showCancel = true;
-			
-
-			target.content.innerHTML = "";
-			
-			// creating dialog either with callback or through HTML string
-			if ( typeof html === 'function' )
-				html(target.content);
-			else
-				target.content.innerHTML = html;
-				
-			
-			// centering and CSS
-			_center(CUSTOMDIALOG, w, h);
-			target.content.firstChild.style.marginTop = '0px';
-
-
-			// OK button
-			target.ok.onclick = function(){ 
-				
-				// validation
-				if ( cbv && (typeof cbv === 'function') )
-				{
-					if ( !cbv (target.content) )
-						return false;
-				}
-
-				
-				// hiding
-				_hide(CUSTOMDIALOG);
-			
-				
-				// client callback
-				if ( cb && (typeof cb === 'function') )
-					cb(target.content);
-				
-				return false;
-			};
-		
-		
-			
-			// CANCEL button
-			target.cancel.onclick = function(){ 
-				_hide(CUSTOMDIALOG);
-
-				if ( cbcancel && (typeof cbcancel === 'function') )
-					cbcancel(target.content);
-			};
-			
-			
-			if ( !showCancel )
-			{
-				target.cancel.style.visibility = 'hidden';
-				target.cancel.style.display = 'none';
-			}
-			else
-			{
-				target.cancel.style.visibility = 'inherit';
-				target.cancel.style.display = 'inline';
-			}
-            
-            
-            // adding hidden submit if a FORM is found inside HTML
-            var form = target.content.querySelector('form');
-            if ( form )
-                _addHiddenSubmit(form, target.ok);
-			
-			
-			// dialog window is now visible
-			_show(CUSTOMDIALOG);
-            
-            
-            // focus on first input
-            var input = target.content.querySelector('input');
-            if ( input && (typeof input.focus == 'function') )
-                input.focus();
-            else
-                target.ok.focus();
+			_get(CUSTOMDIALOG).execute(html, w, h, cb, cbv, cbcancel, showCancel);
 		},
 		
 				
@@ -1612,9 +2121,9 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
             // if no width set, computing width
             if ( !w )
             {
-                // creating a DIV with css style 'uiNotifyCadre' so that we can get the width defined in the style
+                // creating a DIV with css style 'uiNotifyFrame' so that we can get the width defined in the style
                 var tmp = document.createElement('div');
-                tmp.className = 'uiNotifyCadre';
+                tmp.className = 'uiNotifyFrame';
                 tmp.style.display = 'none';
                 tmp.style.visibility = 'hidden';
                 document.body.appendChild(tmp);
@@ -1663,69 +2172,10 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          */
 		prompt : function(lib, defvalue, cb, textarea, textareacssclass, cbcancel)
 		{
-			var divname = textarea ? TEXTAREA : PROMPT;
-			var div = _get(divname);
-
-				
-			// set lib and default value
-			div.lib.innerHTML = lib;
-			div.input.value = defvalue;
-			
-			if ( textareacssclass )
-				div.input.className = 'uiPromptValue ' + textareacssclass;
+			if ( textarea )
+				_get(TEXTAREA).execute(lib, defvalue, cb, textareacssclass, cbcancel);
 			else
-				div.input.className = 'uiPromptValue';
-
-            
-            // sizing
-            _center(divname, nettools.ui.desktop.dialog.ALIGN_DEFAULT, textarea ? nettools.ui.desktop.dialog.ALIGN_CENTER : nettools.ui.desktop.dialog.ALIGN_TOP);
-
-
-	
-			// OK button
-			div.ok.onclick=function(){ 
-				// hiding dialog
-				_hide(divname);
-			
-				
-				// if cb is a function(string) callback, updating function declaration, because nettools.jscore.SubmitHandlers.Callback signature is (form, elements[])
-				if ( cb )
-				{
-					if ( typeof cb === 'function' )
-					{
-						var cbold = cb;
-						cb = new nettools.jscore.SubmitHandlers.Callback(
-							{ 
-								target : function(form, elements) 
-									{
-										cbold(elements[0].value);
-									}
-							});
-					}
-				}
-				else
-					cb = new nettools.jscore.SubmitHandlers.Callback.dummy();
-			
-				
-				// submitting through SubmitHandler.Handler process
-				cb.submit(div.form, [div.input]);
-				
-				return false;
-			};
-		
-		
-			// CANCEL button
-			div.cancel.onclick=function(){ 
-				_hide(divname);
-				
-				if ( cbcancel && (typeof cbcancel === 'function') )
-					cbcancel();
-			};
-		
-		
-			// dialog window visible and focus set on input
-			_show(divname);
-			div.input.focus();
+				_get(PROMPT).execute(lib, defvalue, cb, cbcancel);
 		}
 	};
 })();

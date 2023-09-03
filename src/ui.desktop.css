@@ -142,18 +142,18 @@ ul.uiTabsP li.uiTabSelected{				/* current tab */
 }
 
 
-.uiTextAreaCadre{            
+.uiTextAreaFrame{            
     width:80%;
     height:80%;
     margin-top:auto !important;
 }
 
-.uiTextAreaCadre div.uiDialogContent {
+.uiTextAreaFrame div.uiDialogContent {
     display:flex;
     flex-direction: column;
 }
 
-.uiTextAreaCadre div.uiDialogContent form {
+.uiTextAreaFrame div.uiDialogContent form {
     flex-grow: 1;
     display:flex;
 }
@@ -162,7 +162,7 @@ ul.uiTabsP li.uiTabSelected{				/* current tab */
 
 
 /* richedit */
-.uiRichEditCadreWMax {
+.uiRichEditFrameWMax {
     width:80%;
 }
 
@@ -170,27 +170,27 @@ ul.uiTabsP li.uiTabSelected{				/* current tab */
 
 
 /* show, showAndSubmit */
-.uiDialogCadre .uiDialogContent {
+.uiDialogFrame .uiDialogContent {
     display:flex;
     flex-direction: column;
 }
-.uiDialogCadre .uiDialogContent > iframe {
+.uiDialogFrame .uiDialogContent > iframe {
     flex-grow: 1;
     flex-shrink: 1;
-    height: 1px;     /* bug, mais ensuite le dimensionnement va se faire avec flex-grow dans le container */
+    height: 1px;     
 }
 
 
 
-/* tailles cadres et alignements */
-.uiPromptCadre,
-.uiNotifyCadre,
-.uiConfirmCadre{
+/* frames */
+.uiPromptFrame,
+.uiNotifyFrame,
+.uiConfirmFrame{
     width:40em;
 }
 
-.uiConfirmCadre .uiDialogContent,
-.uiNotifyCadre .uiDialogContent {
+.uiConfirmFrame .uiDialogContent,
+.uiNotifyFrame .uiDialogContent {
     text-align: center;
 }
 
