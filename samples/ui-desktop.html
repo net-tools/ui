@@ -283,10 +283,24 @@
 		// load tinymce
 		loadTinymce : function()
 		{
-			nettools.jscore.loadScript('/libc-ui-test/vendor/tinymce/tinymce/tinymce.min.js', 
+			nettools.jscore.loadScript('../../../tinymce/tinymce/tinymce.min.js', 
 					function()
 					{
 						alert('tinyMce loaded !');
+					}
+				);
+		},        
+        
+		
+        
+		// load FR translations
+		loadFR : function()
+		{
+			nettools.jscore.loadScript('../src/i18n.fr.js', 
+					function()
+					{
+						if ( window.tinymce )
+							nettools.jscore.loadScript('tinymce.fr_FR.js', function(){ alert('FR translations loaded !'); });
 					}
 				);
 		},        
@@ -468,7 +482,8 @@
                 <a href="javascript:void(0)" onclick="test.runPromise('richEditPromise', [test.loremipsum, 500, nettools.ui.desktop.dialog.alignTop(200)]); return false;">richEditPromise (500x200 top)</a>
             </p>   
 			
-			<p><a href="javascript:void(0)" onclick="test.loadTinymce(); return false;">load Tinymce</a></p>
+			<p><a href="javascript:void(0)" onclick="test.loadTinymce(); return false;">load Tinymce</a> 
+				- <a href="javascript:void(0)" onclick="test.loadFR(); return false;">load FR translations</a></p>
         </div>
 
 		

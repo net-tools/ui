@@ -1616,6 +1616,20 @@ nettools.ui.desktop.dialogs.RichEditWindow = class extends nettools.ui.desktop.d
 	 */
 	execute(def, w, h, cb, cbcancel)
 	{
+		// add setup for i18n
+		function _i18n(params)
+		{
+			if ( nettools.ui.desktop.dialog.i18n.TINYMCE_LANGUAGE != 'en' )
+			{
+				params.language = nettools.ui.desktop.dialog.i18n.TINYMCE_LANGUAGE;
+				params.language_url = nettools.ui.desktop.dialog.i18n.TINYMCE_LANGUAGE_URL;
+			}
+			
+			return params;
+		}
+		
+		
+		
 		if ( !window.tinymce )
 		{
 			nettools.ui.desktop.dialog.prompt('TINYMCE missing !', def, cb, true);
@@ -1662,7 +1676,7 @@ nettools.ui.desktop.dialogs.RichEditWindow = class extends nettools.ui.desktop.d
 
 
 		var that = this;
-		tinymce.init({
+		tinymce.init(_i18n({
 			/* textarea */
 			target: this.textarea,
 
@@ -1708,16 +1722,12 @@ nettools.ui.desktop.dialogs.RichEditWindow = class extends nettools.ui.desktop.d
 			remove_script_host : false,
 			relative_urls : false,
 
-			/* langue */
-/*				language : 'fr_FR',
-			language_url : '/lib/tinymce/langs/fr_FR.js',*/
-
 			/* plugins */
 			plugins: "lists advlist anchor autolink charmap code fullscreen link nonbreaking paste print preview quickbars searchreplace visualblocks visualchars",				
 
 			/* toolbar */
 			toolbar: 'undo redo | forecolor backcolor bold italic | alignleft aligncenter alignright alignjustify | outdent indent bullist numlist | preview code | charmap nonbreaking'
-		});
+		}));
 
 
 
@@ -2184,6 +2194,8 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 // i18n
 nettools.ui.desktop.dialog.i18n = {
 	BUTTON_OK : ' OK ',
-	BUTTON_CANCEL : 'Cancel'
+	BUTTON_CANCEL : 'Cancel',
+	TINYMCE_LANGUAGE : 'en',
+	TINYMCE_LANGUAGE_URL : 'undefined'
 }
 
