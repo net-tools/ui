@@ -741,6 +741,85 @@ nettools.ui.desktop.dialogs.OkCancelWindow = class extends nettools.ui.desktop.d
 		this.ok = this.node.querySelectorAll('.uiDialogButtons input')[0];
 		this.cancel = this.node.querySelectorAll('.uiDialogButtons input')[1];
 	}
+	
+	
+	
+	/**
+	 * Cancel dialog
+	 *
+	 * @param function() cbcancel Callback called when user clicks on CANCEL button ; null may be used if no reaction to dialog cancelation is required
+	 */
+	cancelDialog(cbcancel)
+	{
+		if ( cbcancel && (typeof cbcancel === 'function') )
+			cbcancel(); 
+	}
+	
+	
+	
+	/**
+	 * Validate dialog inputs ; must be defined in child classes to handle proper validation
+	 *
+	 * @param function(...) cbv Callback called to validate inputs ; null may be used if no validation is required
+	 * @return bool Returns True if validation is OK
+	 */
+	validateDialog(cbv)
+	{
+		return true;
+	}
+	
+	
+	
+	/**
+	 * Submit dialog inputs ; must be defined in child classes to handle proper submit process
+	 *
+	 * @param function() cb Callback called to submit dialog 
+	 */
+	submitDialog(cb)
+	{
+		if ( cb && (typeof cb === 'function') )
+			cb(); 
+	}
+	
+	
+	
+	/**
+	 * Prepare OK and CANCEL buttons for handling user clicks and hiding dialog windows
+	 *
+	 * @param nettools.jscore.SubmitHandlers.Handler|function(HTMLForm, HTMLElements[]) cb Submit handler or callback called when user clicks on OK button
+	 * @param function(...) cbv Callback called to validate inputs ; null may be used if no validation is required
+	 * @param function() cbcancel Callback called when user clicks on CANCEL button ; null may be used if no reaction to dialog cancelation is required
+	 */
+	setButtonsEvents(cb, cbv, cbcancel)
+	{
+		var that = this;
+		
+		this.ok.onclick = function()
+		{ 
+			if ( that.validateDialog(cbv) )
+			{
+				// hiding dialog window
+				that.hide();
+				
+				// submit dialog
+				that.submitDialog(cb);
+
+				return false;
+			}
+		};
+
+
+		// CANCEL button
+		if ( this.cancel )
+			this.cancel.onclick = function()
+			{ 
+				// hiding dialog
+				that.hide();
+
+				// cancel dialog
+				that.cancelDialog(cbcancel);
+			};		
+	}
 }
 
 
@@ -801,6 +880,36 @@ nettools.ui.desktop.dialogs.DialogWindow = class extends nettools.ui.desktop.dia
 	
 	
 	/**
+	 * Validate dialog inputs of iframe
+	 *
+	 * @param function(HTMLDocument) cbv Callback called to validate inputs ; null may be used if no validation is required
+	 * @return bool Returns True if validation is OK
+	 */
+	validateDialog(cbv)
+	{
+		if ( !cbv )
+			return true;
+		
+		return cbv(this.iframe.contentDocument ? this.iframe.contentDocument : this.iframe.contentWindow.document);
+	}
+	
+	
+	
+	/**
+	 * Submit dialog inputs of iframe
+	 *
+	 * @param nettools.jscore.SubmitHandlers.Handler|function(HTMLForm, HTMLElements[]) cb Submit handler or callback called when user clicks on OK button
+	 */
+	submitDialog(cb)
+	{
+		var doc = this.iframe.contentDocument ? this.iframe.contentDocument : this.iframe.contentWindow.document;
+		var sub = nettools.jscore.SubmitHandlers.Callback.toSubmitHandler(cb);
+		sub.submit(doc.forms[0], doc.forms[0].elements);
+	}
+	
+	
+	
+	/**
 	 * Execute dialog with appropriate parameters
 	 * 
 	 * @param string src Path to iframe src
@@ -820,37 +929,10 @@ nettools.ui.desktop.dialogs.DialogWindow = class extends nettools.ui.desktop.dia
 		this.center(w, h);
 
 
-		// OK button
-		var that = this;
-		this.ok.onclick=function(){ 
-			// if validation callback
-			if ( cbv && (typeof cbv === 'function') )
-			{
-				// if validation issue, don't close window
-				if ( !cbv (that.iframe.contentDocument ? that.iframe.contentDocument : that.iframe.contentWindow.document) )
-					return false;
-			}
-
-			// hiding dialog window
-			that.hide();
-
-			// client callback
-			var doc = that.iframe.contentDocument ? that.iframe.contentDocument : that.iframe.contentWindow.document;
-			var sub = nettools.jscore.SubmitHandlers.Callback.toSubmitHandler(cb);
-			sub.submit(doc.forms[0], doc.forms[0].elements);
-
-			return false;
-		};
-
-
-		// CANCEL button
-		this.cancel.onclick=function(){ 
-			that.hide();
-
-			if ( cbcancel&& (typeof cbcancel === 'function') )
-				cbcancel(); 
-		};
-
+		// OK button : OK callback, validation callback, CANCEL callback
+		this.setButtonsEvents(cb, cbv, cbcancel);
+		
+		
 		if ( !showCancel )
 		{
 			this.cancel.style.visibility = 'hidden';
@@ -864,7 +946,8 @@ nettools.ui.desktop.dialogs.DialogWindow = class extends nettools.ui.desktop.dia
 
 
 		// iframe loading
-		this.iframe.src = '';			
+		this.iframe.src = '';
+		var that = this;
 		window.setTimeout(function()
 				{
 					that.iframe.src = src;
@@ -888,12 +971,41 @@ nettools.ui.desktop.dialogs.DialogWindow = class extends nettools.ui.desktop.dia
 nettools.ui.desktop.dialogs.CustomDialogWindow = class extends nettools.ui.desktop.dialogs.OkCancelWindow {
 	
 	/**
+	 * Validate dialog inputs of custom dialog
+	 *
+	 * @param function(HTMLElement) cbv Callback called to validate inputs ; the callback argument is the HTML tag the dialog is built into
+	 * @return bool Returns True if validation is OK
+	 */
+	validateDialog(cbv)
+	{
+		if ( !cbv )
+			return true;
+		
+		return cbv(this.content);
+	}
+	
+	
+	
+	/**
+	 * Submit dialog inputs of custom dialog
+	 *
+	 * @param function(HTMLElement) cb Callback called when user clicks on OK button, receiving as argument the HTML tag the dialog is built into
+	 */
+	submitDialog(cb)
+	{
+		if ( cb && (typeof cb === 'function') )
+			cb(this.content);
+	}
+
+	
+	
+	/**
 	 * Execute custom dialog built as HTML with appropriate parameters
 	 * 
 	 * @param string|function(HTMLElement) html String holding HTML data inside a top-level tag (such as P or DIV), or a callback function creating dialog inside its argument (DOM node)
 	 * @param int w Dialog width ; if set, the dialog is centered
 	 * @param int h Dialog height ; if negative, anchored to 10em top and height set to abs(height); if positive, height is set and dialog is centered
-	 * @param function(HTMLElement) cb Callback called when user clicks on OK button, receiving as argument the HTML tag the dialog is build into
+	 * @param function(HTMLElement) cb Callback called when user clicks on OK button, receiving as argument the HTML tag the dialog is built into
 	 * @param function(HTMLElement) cbv Validation callback, receiving as argument the HTML tag the dialog is built into
 	 * @param function() cbcancel Callback called when user clicks on CANCEL button
 	 * @param bool showCancel Do we need the CANCEL button ?
@@ -919,37 +1031,7 @@ nettools.ui.desktop.dialogs.CustomDialogWindow = class extends nettools.ui.deskt
 
 
 		// OK button
-		var that = this;
-		this.ok.onclick = function(){ 
-
-			// validation
-			if ( cbv && (typeof cbv === 'function') )
-			{
-				if ( !cbv (that.content) )
-					return false;
-			}
-
-
-			// hiding
-			that.hide();
-
-
-			// client callback
-			if ( cb && (typeof cb === 'function') )
-				cb(that.content);
-
-			return false;
-		};
-
-
-
-		// CANCEL button
-		this.cancel.onclick = function(){ 
-			that.hide();
-
-			if ( cbcancel && (typeof cbcancel === 'function') )
-				cbcancel(that.content);
-		};
+		this.setButtonsEvents(cb, cbv, cbcancel);
 
 
 		if ( !showCancel )
@@ -1049,26 +1131,9 @@ nettools.ui.desktop.dialogs.ConfirmWindow = class extends nettools.ui.desktop.di
 
 
 		// ok button
-		var that = this;
-		this.ok.onclick=function(){ 
-			that.hide();
+		this.setButtonsEvents(cb, null, cbcancel);
 
-			if ( cb && (typeof cb === 'function') )
-				cb();
-
-			return false;
-		};
-
-
-		// CANCEL button
-		this.cancel.onclick=function(){ 
-			that.hide();
-
-			if ( cbcancel && (typeof cbcancel === 'function') )
-				cbcancel();
-		};
-
-
+		
 		// set window visible and focus on OK button
 		this.show();
 		this.ok.focus();
@@ -1080,7 +1145,7 @@ nettools.ui.desktop.dialogs.ConfirmWindow = class extends nettools.ui.desktop.di
 
 
 
-nettools.ui.desktop.dialogs.NotifyWindow = class extends nettools.ui.desktop.dialogs.Window {
+nettools.ui.desktop.dialogs.NotifyWindow = class extends nettools.ui.desktop.dialogs.OkCancelWindow {
 	
 	/** 
 	 * Constructor of NOTIFYWINDOW dialog
@@ -1091,7 +1156,6 @@ nettools.ui.desktop.dialogs.NotifyWindow = class extends nettools.ui.desktop.dia
 	{
 		super(kind);
 		
-		this.ok = null;
 		this.lib = null;
 	}
 	
@@ -1130,7 +1194,6 @@ nettools.ui.desktop.dialogs.NotifyWindow = class extends nettools.ui.desktop.dia
 
 
 		// detect key created HTML elements
-		this.ok = this.node.getElementsByTagName('input')[0];
 		this.lib = this.node.querySelector('span.uiPromptLib'); 
 	}
 	
@@ -1153,15 +1216,7 @@ nettools.ui.desktop.dialogs.NotifyWindow = class extends nettools.ui.desktop.dia
 
 
 		// ok button
-		var that = this;
-		this.ok.onclick=function(){ 
-			that.hide();
-
-			if ( cb && (typeof cb === 'function') )
-				cb();
-
-			return false;
-		};
+		this.setButtonsEvents(cb, null, null);
 
 
 		// set dialog window visible and focus on OK button
@@ -1226,6 +1281,38 @@ nettools.ui.desktop.dialogs.PromptWindow = class extends nettools.ui.desktop.dia
 	
 	
 	/**
+	 * Submit dialog inputs of custom dialog
+	 *
+	 * @param nettools.jscore.SubmitHandlers|function(string) cb Submit handler or callback called when the user clicks on OK button, with the value of the INPUT as only argument
+	 */
+	submitDialog(cb)
+	{
+		// if cb is a function(string) callback, updating function declaration, because nettools.jscore.SubmitHandlers.Callback signature is (form, elements[])
+		if ( cb )
+		{
+			if ( typeof cb === 'function' )
+			{
+				var cbold = cb;
+				cb = new nettools.jscore.SubmitHandlers.Callback(
+					{ 
+						target : function(form, elements) 
+							{
+								cbold(elements[0].value);
+							}
+					});
+			}
+		}
+		else
+			cb = new nettools.jscore.SubmitHandlers.Callback.dummy();
+
+
+		// submitting through SubmitHandler.Handler process
+		cb.submit(this.form, [this.input]);
+	}
+
+	
+	
+	/**
 	 * Execute custom prompt window dialog with appropriate parameters
 	 * 
 	 * @param string lib Prompt string
@@ -1244,48 +1331,8 @@ nettools.ui.desktop.dialogs.PromptWindow = class extends nettools.ui.desktop.dia
 		this.center(nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_TOP);
 
 
-
-		// OK button
-		var that = this;
-		this.ok.onclick = function(){ 
-			// hiding dialog
-			that.hide();
-
-
-			// if cb is a function(string) callback, updating function declaration, because nettools.jscore.SubmitHandlers.Callback signature is (form, elements[])
-			if ( cb )
-			{
-				if ( typeof cb === 'function' )
-				{
-					var cbold = cb;
-					cb = new nettools.jscore.SubmitHandlers.Callback(
-						{ 
-							target : function(form, elements) 
-								{
-									cbold(elements[0].value);
-								}
-						});
-				}
-			}
-			else
-				cb = new nettools.jscore.SubmitHandlers.Callback.dummy();
-
-
-			// submitting through SubmitHandler.Handler process
-			cb.submit(that.form, [that.input]);
-
-			return false;
-		};
-
-
-		
-		// CANCEL button
-		this.cancel.onclick = function(){ 
-			that.hide();
-
-			if ( cbcancel && (typeof cbcancel === 'function') )
-				cbcancel();
-		};
+		// set button events
+		this.setButtonsEvents(cb, null, cbcancel);
 
 
 		// dialog window visible and focus set on input
@@ -1300,24 +1347,8 @@ nettools.ui.desktop.dialogs.PromptWindow = class extends nettools.ui.desktop.dia
 	
 		
 
-nettools.ui.desktop.dialogs.TextAreaWindow = class extends nettools.ui.desktop.dialogs.OkCancelWindow {
+nettools.ui.desktop.dialogs.TextAreaWindow = class extends nettools.ui.desktop.dialogs.PromptWindow {
 		
-	/** 
-	 * Constructor of TEXTAREAWINDOW dialog
-	 *
-	 * @param string kind Window type (from nettools.ui.desktop.dialog consts : CONFIRM, RICHEDIT, DIALOG, DYNAMICFORM, CUSTOMDIALOG, PROMPT, TEXTAREA, NOTIFY)
-	 */	 
-	constructor(kind)
-	{
-		super(kind);
-		
-		this.lib = null;
-		this.input = null;
-		this.form = null;
-	}
-	
-
-	
 	/**
 	 * Create dialog content
 	 *
@@ -1338,10 +1369,9 @@ nettools.ui.desktop.dialogs.TextAreaWindow = class extends nettools.ui.desktop.d
 		super.create();
 
 
-		// detect key created HTML elements
+		// redetect key created HTML elements (form has been already detected in SUPER call to PromptWindow 'create' method, but lib and input are wrong)
 		this.lib = this.node.querySelector('div.uiTextAreaLib'); 
 		this.input = this.node.querySelector('textarea');
-		this.form = this.node.querySelector('form');
 	}
 
 
@@ -1368,48 +1398,9 @@ nettools.ui.desktop.dialogs.TextAreaWindow = class extends nettools.ui.desktop.d
 		this.center(nettools.ui.desktop.dialog.ALIGN_DEFAULT, nettools.ui.desktop.dialog.ALIGN_CENTER);
 
 
-
-		// OK button
-		var that = this;
-		this.ok.onclick=function(){ 
-			// hiding dialog
-			that.hide();
-
-
-			// if cb is a function(string) callback, updating function declaration, because nettools.jscore.SubmitHandlers.Callback signature is (form, elements[])
-			if ( cb )
-			{
-				if ( typeof cb === 'function' )
-				{
-					var cbold = cb;
-					cb = new nettools.jscore.SubmitHandlers.Callback(
-						{ 
-							target : function(form, elements) 
-								{
-									cbold(elements[0].value);
-								}
-						});
-				}
-			}
-			else
-				cb = new nettools.jscore.SubmitHandlers.Callback.dummy();
-
-
-			// submitting through SubmitHandler.Handler process
-			cb.submit(that.form, [that.input]);
-
-			return false;
-		};
-
-
-		// CANCEL button
-		this.cancel.onclick=function(){ 
-			that.hide();
-
-			if ( cbcancel && (typeof cbcancel === 'function') )
-				cbcancel();
-		};
-
+		// set button events
+		this.setButtonsEvents(cb, null, cbcancel);
+		
 
 		// dialog window visible and focus set on input
 		this.show();
@@ -1569,6 +1560,7 @@ nettools.ui.desktop.dialogs.RichEditWindow = class extends nettools.ui.desktop.d
 		super(kind);
 		
 		this.textarea = null;
+		this.editor = null;
 	}
 	
 	
@@ -1597,6 +1589,40 @@ nettools.ui.desktop.dialogs.RichEditWindow = class extends nettools.ui.desktop.d
 		this.textarea = this.node.querySelector('textarea');
 	}
 	
+	
+	
+	/**
+	 * Cancel dialog
+	 *
+	 * @param function() cbcancel Callback called when user clicks on CANCEL button ; null may be used if no reaction to dialog cancelation is required
+	 */
+	cancelDialog(cbcancel)
+	{
+		// remove editor
+		try { this.editor.remove(); this.editor = null; } catch (e){}
+		
+		super.cancelDialog(cbcancel);
+	}
+	
+	
+	
+	/**
+	 * Submit dialog richedit input
+	 *
+	 * @param function(string) cb Callback called to submit data in Richedit editor
+	 */
+	submitDialog(cb)
+	{
+		var value = this.editor.getContent();
+		
+		// remove editor
+		try { this.editor.remove(); this.editor = null; } catch (e){}
+		
+		// callback with value
+		if ( cb && (typeof cb === 'function') )
+			cb(value);
+	}
+
 	
 	
 	/**
@@ -1680,41 +1706,6 @@ nettools.ui.desktop.dialogs.RichEditWindow = class extends nettools.ui.desktop.d
 			/* textarea */
 			target: this.textarea,
 
-			/* setup events on OK and CANCEL */
-			setup : function(ed)
-				{
-					ed.on('init', function(e)
-						{
-							that.ok.onclick=function(){ 
-								// closing dialog window et TMCE
-								that.hide();
-
-								var val = ed.getContent();
-								try{ed.remove();}catch (e){}
-
-								// callback with value
-								if ( cb && (typeof cb === 'function') )
-									cb(val);
-
-								return false;
-							};
-
-
-
-							that.cancel.onclick=function(){ 
-								// closing dialog window et TMCE
-								that.hide();
-
-								try{ed.remove();}catch (e){}
-
-
-								// callback
-								if ( cbcancel && (typeof cbcancel === 'function') )
-									cbcancel();
-							};
-						});
-				},
-
 			/* height for editable field */
 			height:(hObject.isNull() ? (window.innerHeight - 140) : hObject.size) + 'px',
 
@@ -1727,7 +1718,25 @@ nettools.ui.desktop.dialogs.RichEditWindow = class extends nettools.ui.desktop.d
 
 			/* toolbar */
 			toolbar: 'undo redo | forecolor backcolor bold italic | alignleft aligncenter alignright alignjustify | outdent indent bullist numlist | preview code | charmap nonbreaking'
-		}));
+		})).then(function(editors){
+			
+			that.editor = editors[0];
+			
+			// set buttons events
+			that.setButtonsEvents(
+				
+				// cb
+				cb,
+							  
+				
+				// cbv
+				null, 
+								  
+								  
+				// cbcancel
+				cbcancel
+			);			
+		});
 
 
 
