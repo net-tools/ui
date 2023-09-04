@@ -9,6 +9,6 @@ header("Last-Modified: ".gmdate( "D, d M Y H:i:s")." GMT");
 header("Cache-Control: no-cache, must-revalidate");
 header("Pragma: no-cache");	
 
-echo json_encode(array('statut'=>true, 'message'=>"Received payload OK"));
+echo json_encode(array('status'=>true, 'message'=>"Received payload OK"));
 
 ?>

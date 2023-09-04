@@ -194,17 +194,17 @@
                 params.onsubmitpromise = function(elements)
                     {
                         if ( parseInt(elements.input1.value) == elements.input1.value )
-                            return Promise.resolve({statut:true});
+                            return Promise.resolve({status:true});
                         else
-                            return Promise.reject({statut:false, message:'field not numeric (promise)', field : elements.input1});
+                            return Promise.reject({status:false, message:'field not numeric (promise)', field : elements.input1});
                     };
             else
                 params.onsubmit = function(elements)
                     {
                         if ( parseInt(elements.input1.value) == elements.input1.value )
-                            return {statut:true};
+                            return {status:true};
                         else
-                            return {statut:false, message:'field not numeric', field : elements.input1};
+                            return {status:false, message:'field not numeric', field : elements.input1};
                     };
            
             

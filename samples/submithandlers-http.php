@@ -10,7 +10,7 @@ header("Cache-Control: no-cache, must-revalidate");
 header("Pragma: no-cache");	
 
 $r = [
-	'statut' => true,
+	'status' => true,
 	'message' => "Received payload : " . print_r($_POST, true)
 ];
 

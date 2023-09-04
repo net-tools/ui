@@ -746,8 +746,8 @@ nettools.ui.Size = class {
  * `params` object litteral argument may define those properties :
  *   - notice : string ; a string that will be displayed as first line
  *   - fields : object ; an object litteral, each key defining a field (see below for allowed values)
- *   - onsubmit : function(HTMLInputElement[]) ; a custom function to validate data before sending form ; must return an object litteral { statut:true/false, message:'', field:input_in_error}
- *   - onsubmitpromise : function(HTMLInputElement[]) ; a custom function to validate data before sending form ; must return a Promise resolved with value {statut:true} or a rejected promise with value { statut:false, message:'', field:input_in_error}
+ *   - onsubmit : function(HTMLInputElement[]) ; a custom function to validate data before sending form ; must return an object litteral { status:true/false, message:'', field:input_in_error}
+ *   - onsubmitpromise : function(HTMLInputElement[]) ; a custom function to validate data before sending form ; must return a Promise resolved with value {status:true} or a rejected promise with value { status:false, message:'', field:input_in_error}
  *   - presubmit : function(HTMLInputElement[]) ; a custom function to make any updates to data before validation and submission (may be used to remove unwanted characters, etc.)
  *   - submit : nettools.jscore.SubmitHandlers.Handler ; an object responsible for handling form submission
  *   - cancel : function(HTMLForm) ; a callback called if form is canceled
@@ -755,7 +755,7 @@ nettools.ui.Size = class {
  *   - name : string ; form name
  *   - required : string[] ; defines mandatory fields as an array of string, each values being a key of `fields` object litteral property
  *   - regexps : object ; an object litteral defining regular expressions to validate fields, as a couple (key,value), key being the field key as in `fields` object litteral property, value being a RegExp object
- *   - notifier : function({statut:true/false, message:'', field:input}) ; defines a custom notification function to alert the user when form values are invalid 
+ *   - notifier : function({status:true/false, message:'', field:input}) ; defines a custom notification function to alert the user when form values are invalid 
  *
  * `params.fields` property is an object litteral whose keys are fields names and values another object litteral describing the field. Here are samples of field definitions
  *  {
@@ -1207,7 +1207,7 @@ nettools.ui.FormBuilder = (function(){
 					
 					// if form validator has returned a status
 					else 
-					if ( st.statut )
+					if ( st.status )
 						// sending form
 						sub.submit(params.target, params.target.elements);
 	

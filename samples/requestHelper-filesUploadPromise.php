@@ -19,6 +19,6 @@ if ( count($_FILES) )
 	}
 
 
-echo json_encode(array('statut'=>true, 'message'=>implode("\n", $r)));
+echo json_encode(array('status'=>true, 'message'=>implode("\n", $r)));
 
 ?>
