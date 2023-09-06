@@ -1145,33 +1145,7 @@ nettools.ui.desktop.dialogs.ConfirmWindow = class extends nettools.ui.desktop.di
 
 
 
-nettools.ui.desktop.dialogs.NotifyWindow = class extends nettools.ui.desktop.dialogs.OkCancelWindow {
-	
-	/** 
-	 * Constructor of NOTIFYWINDOW dialog
-	 *
-	 * @param string kind Window type (from nettools.ui.desktop.dialog consts : CONFIRM, RICHEDIT, DIALOG, DYNAMICFORM, CUSTOMDIALOG, PROMPT, TEXTAREA, NOTIFY)
-	 */	 
-	constructor(kind)
-	{
-		super(kind);
-		
-		this.lib = null;
-	}
-	
-	
-	
-	/**
-	 * Get buttons line
-	 *
-	 * @return string
-	 */
-	buttonsLine()
-	{
-		return `<div class="uiDialogButtons"><input type="submit" value="${nettools.ui.desktop.dialog.i18n.BUTTON_OK}"></div>`;
-	}
-	
-	
+nettools.ui.desktop.dialogs.NotifyWindow = class extends nettools.ui.desktop.dialogs.ConfirmWindow {
 	
 	/**
 	 * Create dialog content
@@ -1193,12 +1167,13 @@ nettools.ui.desktop.dialogs.NotifyWindow = class extends nettools.ui.desktop.dia
 		super.create();
 
 
-		// detect key created HTML elements
-		this.lib = this.node.querySelector('span.uiPromptLib'); 
+		// no cancel button needed
+		this.cancel.style.visibility = 'hidden';
+		this.cancel.style.display = 'none';
 	}
 	
 	
-
+	
 	/**
 	 * Execute dialow with appropriate parameters
 	 *
@@ -1209,19 +1184,7 @@ nettools.ui.desktop.dialogs.NotifyWindow = class extends nettools.ui.desktop.dia
 	 */
 	execute(lib, cb, w, h)
 	{
-		this.lib.innerHTML = lib;
-
-		// center
-		this.center(w, (h!=nettools.ui.desktop.dialog.ALIGN_DEFAULT)?h:nettools.ui.desktop.dialog.ALIGN_TOP);
-
-
-		// ok button
-		this.setButtonsEvents(cb, null, null);
-
-
-		// set dialog window visible and focus on OK button
-		this.show();
-		this.ok.focus();
+		super.execute(lib, cb, w, h, null);
 	}	
 }
 
