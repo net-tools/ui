@@ -171,6 +171,25 @@ nettools.ui.desktop.InputHelper = (function(){
             return true;
     }
     
+    
+    
+    // EscapeBehavior event handler
+    function _inputOnKeyDownEscapeBehavior(userCb, e)
+    {
+        // keys V, v, c, C pressed ?
+        var kc = (e || window.event).keyCode;
+        if ( kc == 27 )
+		{
+			// call user callback
+			if ( typeof userCb === 'function' )
+				userCb();
+			
+            return false;
+		}
+        else
+            return true;	// not handled
+    }
+    
 	// ---- /PRIVATE ---
 	
 	return {
@@ -236,10 +255,23 @@ nettools.ui.desktop.InputHelper = (function(){
 			nettools.ui.desktop.InputHelper.inputAddKeyBehavior(input, _inputOnKeyDownNoCopyPasteBehavior);
 		},
 		
+		
+		
+		/**
+		 * Detect ESCAPE keypress and call user callback
+		 *
+         * @param HTMLInputElement input
+         * @param function() cb User callback called when ESCAPE key is pressed to handle dialog cancelation
+		 */		 
+		escapeBehavior : function(input, cb)
+		{
+			nettools.ui.desktop.InputHelper.inputAddKeyBehavior(input, _inputOnKeyDownEscapeBehavior.bind(input, cb));
+		},
+		
         
 		
 		/**
-         * Add a specifc behavior to an input
+         * Add a specific behavior to an input
          * 
          * @param HTMLInputElement input
          * @param function(Event) cb onkeydown event handler ; an event chain is used, returning FALSE halts event handling among all registered event handlers
@@ -811,6 +843,7 @@ nettools.ui.desktop.dialogs.OkCancelWindow = class extends nettools.ui.desktop.d
 
 		// CANCEL button
 		if ( this.cancel )
+		{
 			this.cancel.onclick = function()
 			{ 
 				// hiding dialog
@@ -818,7 +851,15 @@ nettools.ui.desktop.dialogs.OkCancelWindow = class extends nettools.ui.desktop.d
 
 				// cancel dialog
 				that.cancelDialog(cbcancel);
-			};		
+			};
+			
+			
+			
+			// add ESCAPE key behavior
+			nettools.ui.desktop.InputHelper.escapeBehavior(this.node, this.cancel.onclick);
+		}
+		
+		
 	}
 }
 
@@ -1218,7 +1259,7 @@ nettools.ui.desktop.dialogs.PromptWindow = class extends nettools.ui.desktop.dia
 	 */
 	build()
 	{
-		return '<div class="uiPromptLib"></div><form><input type="text" name="value" class="uiPromptValue" onkeydown="if (event.keyCode === 27) _hide(PROMPT);"></form>';
+		return '<div class="uiPromptLib"></div><form><input type="text" name="value" class="uiPromptValue"></form>';
 	}
 	
 	
@@ -1489,6 +1530,10 @@ nettools.ui.desktop.dialogs.DynamicFormWindow = class extends nettools.ui.deskto
 		nettools.ui.desktop.dialogs.OkCancelWindow._addHiddenSubmit(params.target, btns.firstChild);
 
 
+		// add ESCAPE key behavior
+		nettools.ui.desktop.InputHelper.escapeBehavior(params.target, params.cancel);
+		
+		
 		// dialog window is now visible
 		this.show();
 
