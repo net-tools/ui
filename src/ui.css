@@ -247,7 +247,7 @@ table.uiList{
 }
 
 
-.FormBuilder > div span {					/* field as label + input */
+.FormBuilder > div > * {					/* field as label + input */
 	margin-right:1em;
 	margin-top:0px;
 	margin-bottom:0px;
