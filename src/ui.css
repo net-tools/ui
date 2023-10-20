@@ -242,12 +242,16 @@ table.uiList{
 	display: flex;
 }
 
+.FormBuilder > div.notice {
+	display: block;							/* container for notice line */
+}
+
 .FormBuilder > div:first-of-type{
     margin-top:0;
 }
 
 
-.FormBuilder > div > * {					/* field as label + input */
+.FormBuilder > div:not(.notice) > * {		/* field as label + input */
 	margin-right:1em;
 	margin-top:0px;
 	margin-bottom:0px;

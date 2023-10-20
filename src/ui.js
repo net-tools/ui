@@ -1110,6 +1110,7 @@ nettools.ui.FormBuilder = (function(){
 			{
 				var div = document.createElement('div');
 				div.innerHTML = params['notice'];
+				div.classList.add('notice');
 				params.target.appendChild(div);
 			}
 				
