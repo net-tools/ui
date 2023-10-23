@@ -1142,7 +1142,7 @@ nettools.ui.FormBuilder = (function(){
 						fradio.type = 'radio';
 						
 						// new line required
-						//curr_container = _newLineBefore(fradio, curr_container, params);
+						curr_container = _newLineBefore(fradio, curr_container, params);
 				
 
 						// create the readion button, with common name 'f', the item name is only required to create object litteral keys
