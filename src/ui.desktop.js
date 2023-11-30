@@ -625,13 +625,36 @@ return `<div class="uiDialogWrapper" style="visibility:hidden;">
 	 * 
 	 * @param int w Width 
 	 * @param int h Height
+	 * @param string cssClass Custom CSS classname to set to window frame
 	 */
-	center(w, h)
+	center(w, h, cssClass)
 	{
 		this.node.style.height = null;
 		this.node.style.width = null;
 		this.node.classList.remove('uiDialogVCentered');
 		this.node.classList.remove('uiDialogTopAligned');
+		
+		
+		
+		// reset CSS
+		var css = this.node.getAttribute('data-customcss');
+		if ( css )
+		{
+			var that = this;
+			css.split(/ /).forEach(function(v){ that.node.classList.remove(v); });
+			this.node.removeAttribute('data-customcss');
+		}
+		
+		
+		// set CSS		
+		if ( cssClass )
+		{
+			var that = this;
+			cssClass.split(/ /).forEach(function(v){ that.node.classList.add(v); });
+			this.node.setAttribute('data-customcss', cssClass);
+		}
+			
+			
 
 
 		// if no W and H values, center
@@ -960,14 +983,15 @@ nettools.ui.desktop.dialogs.DialogWindow = class extends nettools.ui.desktop.dia
 	 * @param function(HTMLDocument) cbv Callback called to validate inputs
 	 * @param function() cbcancel Callback called when user clicks on CANCEL button
 	 * @param bool showCancel May be set to TRUE to display CANCEL button
+	 * @param string cssClass CSS classname to set to window frame
 	 */
-	execute(src, w, h, cb, cbv, cbcancel, showCancel)
+	execute(src, w, h, cb, cbv, cbcancel, showCancel, cssClass)
 	{
 		if ( showCancel === undefined )
 			showCancel = true;
 
 		// center
-		this.center(w, h);
+		this.center(w, h, cssClass);
 
 
 		// OK button : OK callback, validation callback, CANCEL callback
@@ -984,10 +1008,10 @@ nettools.ui.desktop.dialogs.DialogWindow = class extends nettools.ui.desktop.dia
 			this.cancel.style.visibility = 'inherit';
 			this.cancel.style.display = 'inline';
 		}
-
-
+		
+		
 		// iframe loading
-		this.iframe.src = '';
+		this.iframe.src = '';		
 		var that = this;
 		window.setTimeout(function()
 				{
@@ -1986,14 +2010,15 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          * @param int h Dialog height ; if negative, anchored to 10em top and height set to abs(height); if positive, height is set and dialog is centered
          * @param function(HTMLDocument) cbv Callback called to validate inputs
          * @param bool showCancel May be set to TRUE to display CANCEL button
+		 * @param string cssClass CSS classname to set for dialog window
          * @return Promise Returns a Promise resolved when users clicks on OK button, with a object litteral as value {HTMLFormElement form, HTMLInputElement[] elements}, rejected if CANCEL button clicked
          */
-        showPromise : function(src, w, h, cbv, showCancel)
+        showPromise : function(src, w, h, cbv, showCancel, cssClass)
         {
 			return new Promise(
 					function(resolve, reject)
 					{
-                        nettools.ui.desktop.dialog.show(src, w, h, function(f, e, d){resolve({form:f, elements:e});}, cbv, reject, showCancel);
+                        nettools.ui.desktop.dialog.show(src, w, h, function(f, e, d){resolve({form:f, elements:e});}, cbv, reject, showCancel, cssClass);
                     }
                 );
         },
@@ -2010,10 +2035,11 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          * @param function(HTMLDocument) cbv Callback called to validate inputs
          * @param function() cbcancel Callback called when user clicks on CANCEL button
          * @param bool showCancel May be set to TRUE to display CANCEL button
+		 * @param string cssClass CSS classname to set for dialog window
          */
-		show : function(src, w, h, cb, cbv, cbcancel, showCancel)
+		show : function(src, w, h, cb, cbv, cbcancel, showCancel, cssClass)
 		{
-			_get(DIALOG).execute(src, w, h, cb, cbv, cbcancel, showCancel);
+			_get(DIALOG).execute(src, w, h, cb, cbv, cbcancel, showCancel, cssClass);
 		},
 		
         
@@ -2026,8 +2052,9 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          * @param int h Dialog height ; if negative, anchored to 10em top and height set to abs(height); if positive, height is set and dialog is centered
          * @param function(HTMLDocument) cbv Callback called to validate inputs
          * @param function() cbcancel Callback called when user clicks on CANCEL button
+		 * @param string cssClass CSS classname to set for dialog window
          */
-		showAndSubmit : function (src, w, h, cbv, cbcancel)
+		showAndSubmit : function (src, w, h, cbv, cbcancel, cssClass)
 		{
 			nettools.ui.desktop.dialog.show(src, w, h,  
 						
@@ -2047,7 +2074,11 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 						
 									   
 						// cancel button
-						cbcancel
+						cbcancel,
+											
+											
+						// css class
+						cssClass
 					);
 		},
 		
