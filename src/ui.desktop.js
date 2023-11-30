@@ -2052,9 +2052,10 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
          * @param int h Dialog height ; if negative, anchored to 10em top and height set to abs(height); if positive, height is set and dialog is centered
          * @param function(HTMLDocument) cbv Callback called to validate inputs
          * @param function() cbcancel Callback called when user clicks on CANCEL button
+         * @param bool showCancel May be set to TRUE to display CANCEL button
 		 * @param string cssClass CSS classname to set for dialog window
          */
-		showAndSubmit : function (src, w, h, cbv, cbcancel, cssClass)
+		showAndSubmit : function (src, w, h, cbv, cbcancel, showCancel, cssClass)
 		{
 			nettools.ui.desktop.dialog.show(src, w, h,  
 						
@@ -2075,6 +2076,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 									   
 						// cancel button
 						cbcancel,
+						showCancel,
 											
 											
 						// css class

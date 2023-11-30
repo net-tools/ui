@@ -465,11 +465,12 @@
             
             
             <p>
-                <a href="javascript:void(0)" onclick="test.run('show', ['ui-desktop-iframe.php', 500, 200, test.cbshow, test.cbvshow, test.cbcancel, true]); return false;">show (500x200)</a>            
+				<style>.mycss { border: 3px solid black; } </style>
+                <a href="javascript:void(0)" onclick="test.run('show', ['ui-desktop-iframe.php', 500, 200, test.cbshow, test.cbvshow, test.cbcancel, true, 'mycss']); return false;">show (500x200)</a>            
                 -
                 <a href="javascript:void(0)" onclick="test.runPromise('showPromise', ['ui-desktop-iframe.php', 500, nettools.ui.desktop.dialog.alignTop(200), test.cbvshow, true]); return false;">showPromise (500x200 top)</a>            
                 -
-                <a href="javascript:void(0)" onclick="test.run('showAndSubmit', ['ui-desktop-iframe.php', 500, 200, test.cbvshow, test.cbcancel, true]); return false;">showAndSubmit (500x200)</a>            
+                <a href="javascript:void(0)" onclick="test.run('showAndSubmit', ['ui-desktop-iframe.php', 500, 200, test.cbvshow, test.cbcancel, true, 'mycss']); return false;">showAndSubmit (500x200)</a>            
             </p>
             
             <p>
