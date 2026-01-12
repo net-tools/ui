@@ -770,7 +770,8 @@ nettools.ui.Size = class {
  *  	name8 : {type:'file', value:'', newLineBefore:true},
  *  	name9 : {type:'image', value:'images/pic.jpg', label : 'Logo actif', title:'Image tooltip here'},
  *		name10: {type:'date', value:'2018-10-25'},
- *		name11: {type:'text', value:'tmp', readonly:true}
+ *		name11: {type:'text', value:'tmp', readonly:true},
+ *      name12: {type:'text', value:'xxx', autocomplete:true, options:[{value:'sel1', label:'labelsel1'}, ... ], onchange:function(elements, value, label){this = input} }
  *  }
  */ 
 nettools.ui.FormBuilder = (function(){
@@ -1005,6 +1006,32 @@ nettools.ui.FormBuilder = (function(){
 			div.style.display = "none";
 		}
 
+		
+		// si liste de choix autocomplete, le champs est de type text
+		if ( field['autocomplete'] )
+		{
+			// autocomplete clients
+			new Awesomplete(e, {
+					list : field['options'] || [],
+					tabSelect : true,
+					autoFirst : true,
+					maxItems:15,
+					sort : function(a,b){
+						return ( a < b ) ? -1:1;
+					},                    
+					filter: Awesomplete.FILTER_STARTSWITH  
+				});
+			
+			
+			// si évènement pour réagir
+			if ( typeof field['onchange'] == 'function' )
+			{
+				e.addEventListener('awesomplete-selectcomplete', function(o){
+					field['onchange'].call(e, e.form.elements, o.text.value, o.text.label);
+				});
+			}
+		}
+		
 		
 		// return field (already added in form)
 		return div;

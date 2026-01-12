@@ -9,11 +9,13 @@
     <link rel="stylesheet" href="../src/ui.yellow-theme.css" id="colorStyle">
     <link rel="stylesheet" href="../src/ui.desktop.css">
     <link rel="stylesheet" href="../src/ui.desktop.yellow-theme.css" id="desktopColorStyle">
+    <link rel="stylesheet" href="../src/awesomplete/awesomplete.css">
     <link rel="stylesheet" href="ui.css">
 
     <script src="../../js-core/src/js-core.js"></script>
     <script src="../src/ui.js"></script>
     <script src="../src/ui.desktop.js"></script>
+    <script src="../src/awesomplete/awesomplete.min.js"></script>
     <script src="ui.js"></script>
 
     <style>
@@ -135,7 +137,15 @@
                         input8 : {type:'date', label:'input8 (date d/m/Y) ?', value:'2018-12-04', newLineBefore:true},
                         input9 : {type:'time', label:'input9 (time) ?', value:'23:45:00', newLineBefore:false},
                         input10 : {type:'number', label:'input10 (number) ?', value:'33', newLineBefore:true},
-                        input11 : {type:'tel', label:'input11 (tel) ?', value:'0473371507'}
+                        input11 : {type:'tel', label:'input11 (tel) ?', value:'0473371507'},
+                        input12 : {type:'text', autocomplete:true, label:'input12 (select autocomplete) ?', value:'',  
+								   		options:[{label:'', value:''}, {label:'label <b style="color:green;">1</b>', value:'v1'}, {label:'label <b style="color:red">2</b>', value:'v2'}],
+								   		onchange:function(elements, value, lib)
+								   			{
+												alert(`Value:${value} ; title:${lib}`);
+												this.value = '';	// reset input content
+											}
+								  	}
                     },
 
                     regexps :  {
