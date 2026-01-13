@@ -698,7 +698,7 @@ nettools.ui.Size = class {
 		if ( value instanceof nettools.ui.Size )
 			// only possible if same unit
 			if ( this.unit === value.unit )
-				return new nettools.ui.Size(this.size + value.size, this.unit);
+				return new nettools.ui.Size(this.size + value.size + this.unit);
 			else
 				throw new Error('Cannot add a Size object to another with different units');
 		else
@@ -723,7 +723,7 @@ nettools.ui.Size = class {
 		if ( value instanceof nettools.ui.Size )
 			// only possibile if same unit
 			if ( this.unit === value.unit )
-				return new nettools.ui.Size(this.size - value.size, this.unit);
+				return new nettools.ui.Size(this.size - value.size + this.unit);
 			else
 				throw new Error('Cannot subtract a Size object from another with different units');
 		else
