@@ -102,3 +102,18 @@
 			color: inherit;
 		}
 /*# sourceMappingURL=awesomplete.css.map */
+
+
+
+div.awesomplete li b {
+	color:darkorange;
+	font-size: 1.1em;
+}
+
+div.awesomplete li:hover b {
+	color:firebrick;
+}
+
+div.awesomplete li[aria-selected='true'] b {
+	color:yellow;
+}
