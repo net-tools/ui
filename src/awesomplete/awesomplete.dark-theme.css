@@ -4,7 +4,7 @@
 }		
 
 .awesomplete > ul > li[aria-selected="true"] {
-	background-color: #052751 !important;
+	background-color: #1e2124 !important;
 	color: white !important;
 }
 
@@ -15,8 +15,8 @@
 
 
 .awesomplete > ul {
-	background: #1d456de8 !important;
-	box-shadow: 0.05em 0.2em 0.7em #695d5d !important;
+    background: rgb(38 47 54 / 94%) !important;
+    box-shadow: 0.05em 0.2em 0.7em #3e3030 !important;
     border-color: slategray;
 }
 
