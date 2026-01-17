@@ -1,3 +1,8 @@
+.awesomplete > ul > li:hover {
+	background-color: navajowhite !important;
+	color: black !important;
+}		
+
 .awesomplete > ul > li[aria-selected="true"] {
 	background-color: #052751 !important;
 	color: white !important;
@@ -23,7 +28,3 @@
 	background-color: chocolate !important;
 }
 
-.awesomplete > ul > li:hover {
-	background-color: navajowhite !important;
-	color: black !important;
-}		
