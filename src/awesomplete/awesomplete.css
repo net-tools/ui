@@ -35,8 +35,7 @@
 .awesomplete > ul {
 	border-radius: .3em;
 	margin: .2em 0 0;
-	background: hsla(0,0%,100%,.9);
-	background: linear-gradient(to bottom right, white, hsla(0,0%,100%,.8));
+	background: hsl(213.23deg 100% 96.55% / 90%);
 	border: 1px solid rgba(0,0,0,.3);
 	box-shadow: .05em .2em .6em rgba(0,0,0,.2);
 	text-shadow: none;
