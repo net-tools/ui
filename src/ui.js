@@ -771,7 +771,7 @@ nettools.ui.Size = class {
  *  	name9 : {type:'image', value:'images/pic.jpg', label : 'Logo actif', title:'Image tooltip here'},
  *		name10: {type:'date', value:'2018-10-25'},
  *		name11: {type:'text', value:'tmp', readonly:true},
- *      name12: {type:'text', value:'xxx', autocomplete:true, options:[{value:'sel1', label:'labelsel1'}, ... ], onchange:function(value, label){this = input} },
+ *      name12: {type:'text', value:'xxx', autocomplete:true, options:[{value:'sel1', label:'labelsel1'}, ... ], listWidth:'16em', onchange:function(value, label){this = input} },
  *      name13: {type:'text', value:'yyy', onchange:function(){this = input}}
  *  }
  */ 
@@ -1022,6 +1022,11 @@ nettools.ui.FormBuilder = (function(){
 					},                    
 					filter: Awesomplete.FILTER_STARTSWITH  
 				});
+			
+			
+			// listWidth : attribuer au UL autocomplete une largeur spécifique
+			if ( field['listWidth'] )
+				e.nextElementSibling.style.width = field['listWidth'];
 		}
 		
 		
