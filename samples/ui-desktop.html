@@ -137,10 +137,10 @@
                         input8 : {type:'date', label:'input8 (date d/m/Y) ?', value:'2018-12-04', newLineBefore:true},
                         input9 : {type:'time', label:'input9 (time) ?', value:'23:45:00', newLineBefore:false},
                         input10 : {type:'number', label:'input10 (number) ?', value:'33', newLineBefore:true},
-                        input11 : {type:'tel', label:'input11 (tel) ?', value:'0473371507'},
-                        input12 : {type:'text', autocomplete:true, label:'input12 (select autocomplete) ?', value:'',  
+                        input11 : {type:'tel', label:'input11 (tel) ?', value:'0473371507', onchange:function(e){alert('Changed ! : ' + this.value);}},
+                        input12 : {type:'text', autocomplete:true, label:'input12 (select autocomplete) ?', value:'', placeholder:'label...',  
 								   		options:[{label:'', value:''}, {label:'label <b style="color:green;">1</b>', value:'v1'}, {label:'label <b style="color:red">2</b>', value:'v2'}],
-								   		onchange:function(elements, value, lib)
+								   		onchange:function(value, lib)
 								   			{
 												alert(`Value:${value} ; title:${lib}`);
 												this.value = '';	// reset input content

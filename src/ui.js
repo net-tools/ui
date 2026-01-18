@@ -771,7 +771,8 @@ nettools.ui.Size = class {
  *  	name9 : {type:'image', value:'images/pic.jpg', label : 'Logo actif', title:'Image tooltip here'},
  *		name10: {type:'date', value:'2018-10-25'},
  *		name11: {type:'text', value:'tmp', readonly:true},
- *      name12: {type:'text', value:'xxx', autocomplete:true, options:[{value:'sel1', label:'labelsel1'}, ... ], onchange:function(elements, value, label){this = input} }
+ *      name12: {type:'text', value:'xxx', autocomplete:true, options:[{value:'sel1', label:'labelsel1'}, ... ], onchange:function(value, label){this = input} },
+ *      name13: {type:'text', value:'yyy', onchange:function(){this = input}}
  *  }
  */ 
 nettools.ui.FormBuilder = (function(){
@@ -1005,9 +1006,9 @@ nettools.ui.FormBuilder = (function(){
 			div.style.visibility = "hidden";
 			div.style.display = "none";
 		}
-
 		
-		// si liste de choix autocomplete, le champs est de type text
+		
+		// si liste de choix autocomplete
 		if ( field['autocomplete'] )
 		{
 			// autocomplete clients
@@ -1021,16 +1022,22 @@ nettools.ui.FormBuilder = (function(){
 					},                    
 					filter: Awesomplete.FILTER_STARTSWITH  
 				});
-			
-			
-			// si évènement pour réagir
-			if ( typeof field['onchange'] == 'function' )
-			{
-				e.addEventListener('awesomplete-selectcomplete', function(o){
-					field['onchange'].call(e, e.form.elements, o.text.value, o.text.label);
-				});
-			}
 		}
+		
+		
+		// si évènement pour réagir
+		if ( typeof field['onchange'] == 'function' )
+		{
+			// cas particulier liste autocomplete
+			if ( field['autocomplete'] )
+				e.addEventListener('awesomplete-selectcomplete', function(o){
+					field['onchange'].call(e, o.text.value, o.text.label);
+				});
+			
+			else
+				e.addEventListener('change', field['onchange']);
+		}
+
 		
 		
 		// return field (already added in form)
