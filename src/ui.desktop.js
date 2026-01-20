@@ -391,7 +391,7 @@ nettools.ui.desktop.Tabs = class {
             tab.style.display = 'none';
             
             var iframe = document.createElement('iframe');
-            iframe.src = this.params.csrf ? nettools.jscore.SecureRequestHelper.addCSRFHashedValue(this.params.tabs[i].url) : this.params.tabs[i].url;
+            iframe.src = this.params.csrf ? nettools.jscore.SecureRequestHelper.addCSRFValue(this.params.tabs[i].url) : this.params.tabs[i].url;
             iframe.frameBorder = 0;
             iframe.marginHeight = 0;
             iframe.marginWidth = 0;
