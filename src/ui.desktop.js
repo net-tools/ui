@@ -303,7 +303,6 @@ nettools.ui.desktop.Tabs = class {
 	 *   - outputTo : HTMLElement ; the DOM node the tabs will be rendered into
 	 *   - orientation : string ; may be set to 'P' (portrait) or 'L' (landscape)
 	 *   - tabs : object[] ; array of object litterals describing tabs with `title`, `id` and `url` properties
-	 *   - csrf : bool ; are URL in `tabs` property secured by CSRF values ?
 	 *   - portraitTabWidth : string ; width of tabs when Portrait mode (one tab per line), must be defined with unit, ex. '150px' ; default '120px'
 	 *   - id : string ; tabs group id name, if not set the ID is taken from the id of the container the tabs are added into
 	 *
@@ -332,7 +331,6 @@ nettools.ui.desktop.Tabs = class {
         // parameters normalize
         this.params.orientation = this.params.orientation || 'P';
         this.params.tabs = this.params.tabs || [];
-        this.params.csrf = this.params.csrf || false;
 		this.params.id = this.params.id || container.id;
 
         if( this.params.orientation == 'P' )
@@ -391,7 +389,7 @@ nettools.ui.desktop.Tabs = class {
             tab.style.display = 'none';
             
             var iframe = document.createElement('iframe');
-            iframe.src = this.params.csrf ? nettools.jscore.SecureRequestHelper.addCSRFValue(this.params.tabs[i].url) : this.params.tabs[i].url;
+            iframe.src = this.params.tabs[i].url;
             iframe.frameBorder = 0;
             iframe.marginHeight = 0;
             iframe.marginWidth = 0;
