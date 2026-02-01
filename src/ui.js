@@ -772,8 +772,12 @@ nettools.ui.Size = class {
  *		name10: {type:'date', value:'2018-10-25'},
  *		name11: {type:'text', value:'tmp', readonly:true},
  *      name12: {type:'text', value:'xxx', autocomplete:true, options:[{value:'sel1', label:'labelsel1'}, ... ], listWidth:'16em', onchange:function(value, label){this = input} },
- *      name13: {type:'text', value:'yyy', onchange:function(){this = input}}
+ *      name13: {type:'text', value:'yyy', onchange:function(){this = input}},
+ * 		name14: {type:'select', autocomplete:true, options:[...]}
  *  }
+ *
+ *  NB : for 'autocomplete' fields, an hidden field name with '__value' suffix is creaded and will receive the content of 'value' property when a line is selected
+ *       in the autocomplete list (defaulting to 'label' property if no 'value' property set) ; the visible input always display the 'label' property
  */ 
 nettools.ui.FormBuilder = (function(){
 	
@@ -837,6 +841,11 @@ nettools.ui.FormBuilder = (function(){
 		var unid = name + nettools.jscore.randomNumber();
 		if ( (field.type !== 'checkbox') && (field.type !== 'radio') && ((field['nolabel'] === undefined) || !field.nolabel) )
 			div.appendChild(_createLabel(name, unid, field));
+		
+		
+		// if field type 'select' but autocomplete=true, switch to 'text' type so that awesomplete can be used
+		if ( field['autocomplete'] && (field.type=='select') )
+			field.type = 'text';
 		
 		
 		// create field
@@ -1027,6 +1036,20 @@ nettools.ui.FormBuilder = (function(){
 			// listWidth : attribuer au UL autocomplete une largeur spécifique
 			if ( field['listWidth'] )
 				e.nextElementSibling.style.width = field['listWidth'];
+			
+			
+			// créer automatiquement champ caché pour stocker valeur
+			var tmp = document.createElement('input');
+			tmp.type = 'hidden';
+			tmp.name = e.name + '__value';
+			tmp.value = '';
+			div.appendChild(tmp);
+			
+			// on select done, set selected value in an hidden field, and keep label value for the input
+			e.addEventListener('awesomplete-selectcomplete', function(o){
+				tmp.value = o.text.value ? o.text.value : o.text.label;
+				e.value = o.text.label;
+			});
 		}
 		
 		
@@ -1184,7 +1207,7 @@ nettools.ui.FormBuilder = (function(){
 						curr_container = _newLineBefore(fradio, curr_container, params);
 				
 
-						// create the readion button, with common name 'f', the item name is only required to create object litteral keys
+						// create the radio button, with common name 'f', the item name is only required to create object litteral keys
 						var frad = _createField(fradio, f, params);
 						curr_container.appendChild(frad);
 						
