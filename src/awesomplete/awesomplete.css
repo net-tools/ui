@@ -35,7 +35,7 @@
 .awesomplete > ul {
 	border-radius: .3em;
 	margin: .2em 0 0;
-	background: #e4e6eb/*hsl(213.23deg 100% 96.55% / 90%)*/;
+	background: #d1e0e8f2 /*hsl(213.23deg 100% 96.55% / 90%)*/;
 	border: 1px solid rgba(0,0,0,.3);
 	box-shadow: .05em .2em .6em rgba(0,0,0,.2);
 	text-shadow: none;
@@ -79,7 +79,7 @@
 	}
 	
 	.awesomplete > ul > li:hover {
-		background: hsl(200, 40%, 80%);
+		background: hsl(200deg 41.36% 75.5%);
 		color: black;
 	}
 	
