@@ -2123,8 +2123,6 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 								} 
 						});
 						
-						params.cancel = reject;
-						
 						
 						nettools.ui.desktop.dialog.dynamicForm(params, formClassName, w, h, onload);
 					}
