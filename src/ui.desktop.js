@@ -1876,7 +1876,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 		// ----- RICHEDIT -----
 		
 		/**
-         * Richedit with Promise handling
+         * Richedit with Promise resolved with the richedit content when users clicks on OK button
          *
          * Window sizing is particular, since richEdit requires a large viewport :
          *   - if W is not set, then W = 80% of parent
@@ -1926,7 +1926,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 		// ---- NOTIFY -----	
 		
 		/**
-         * Notify window with Promise
+         * Notify window with Promise, resolved when user clicks on OK button
          *
          * @param string lib Message
          * @param int w Dialog width ; if set, the dialog is centered ; if not set, default width used
@@ -1963,7 +1963,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 		// ---- CONFIRM ----
 	
 		/**
-         * Confirm window with Promise
+         * Confirm window with Promise resolved if users clicks on OK button
          *
          * @param string lib Message
          * @param int w Dialog width ; if set, the dialog is centered ; if not set, default width used
@@ -2001,7 +2001,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 		// ---- SHOW DIALOG ----
                 
 		/**
-         * Display an iframe as dialog window and returns a Promise
+         * Display an iframe as dialog window and returns a Promise resolved with an object having 'form' and 'elements' properties
          * 
          * @param string src Path to iframe src
          * @param int w Dialog width ; if set, the dialog is centered
@@ -2102,10 +2102,41 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 	
 	
 				
+		/**
+         * Create a dialog window with dynamically created fields, returning a Promise resolved with 
+         *
+         * @param object params Object litteral describing fields (see nettools.ui.FormBuilder)
+         * @param string formClassName CSS style to apply to form
+         * @param int w Dialog width ; if set, the dialog is centered
+         * @param int h Dialog height ; if negative, anchored to 10em top and height set to abs(height); if positive, height is set and dialog is centered ; if not set, dialog is centered (no height set)
+         * @param function(HTMLFormElement, HTMLInputElement[]) onload Callback called when dialog window is ready
+         */
+		dynamicFormPromise : function (params, formClassName, w, h, onload)
+		{
+			return new Promise(
+					function(resolve, reject)
+					{
+						params.submit = new nettools.jscore.SubmitHandlers.Callback({ 
+							target : function(form, elements)
+								{ 
+									resolve({ form:form, elements:elements });
+								} 
+						});
+						
+						params.cancel = reject;
+						
+						
+						nettools.ui.desktop.dialog.dynamicForm(params, formClassName, w, h, onload);
+					}
+				);
+		},
+	
+	
+				
 		// ---- CUSTOM DIALOG ----
 		
 		/**
-         * Custom dialog as HTML and returning a Promise
+         * Custom dialog as HTML and returning a Promise resolved with the html node the dialog is built into
          * 
 		 * @param string|function(HTMLElement) html String holding HTML data inside a top-level tag (such as P or DIV), or a callback function creating dialog inside its argument (DOM node)
          * @param int w Dialog width ; if set, the dialog is centered
@@ -2147,7 +2178,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 		// ---- NOTIFY		
         
 		/**
-         * Custom notification window as HTML and returning a Promise
+         * Custom notification window as HTML and returning a Promise resolved when user clicks on OK button
          * 
 		 * @param string|function(HTMLElement) html String holding HTML data inside a top-level tag (such as P or DIV), or a callback function creating dialog inside its argument (DOM node)
          * @param int w Dialog width ; if set, the dialog is centered
@@ -2198,7 +2229,7 @@ nettools.ui.desktop.dialog = nettools.ui.desktop.dialog || (function(){
 		// ---- PROMPT ----
 		
 		/**
-         * Custom prompt window, returning a Promise
+         * Custom prompt window, returning a Promise resolved with the input field value when user clicks on OK button
          * 
 		 * @param string lib Prompt string
 		 * @param string defvalue Default value for prompt

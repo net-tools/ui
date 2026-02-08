@@ -221,6 +221,32 @@
             
             nettools.ui.desktop.dialog.dynamicForm(params, 'fstyle', w, promise?(top?nettools.ui.desktop.dialog.alignTop(450):450):nettools.ui.desktop.dialog.ALIGN_DEFAULT, function(){alert('loaded');});
         },
+		
+		
+		
+		dynamicFormPromise : function()
+		{
+            var params = {                    
+                    fields : {
+                        input1 : {type:'text', value:'default 1', label:'input1 (numeric) ?', required : true},
+                        input2 : {type:'select', value:'', label:'input2 ?', options:[{value:'value1',label:'value1'}, {value:'value2',label:'value2'}]}
+                    },
+
+                    required : ['input1']
+                };
+
+            
+            nettools.ui.desktop.dialog.dynamicFormPromise(params, 'fstyle')
+				.then(function(res){
+					sample.output('Promise resolved\n' +
+					 				'input1=' + res.elements.input1.value + '\n' +
+									'input2=' + res.elements.input2.value);
+				})
+				.catch(function(e){
+					sample.output('Promise rejected\n' + e.toString());
+					console.log(e);
+				})
+		},
                 
         
         
@@ -470,6 +496,8 @@
                 <a href="javascript:void(0)" onclick="test.dynamicForm(750, true, true); return false;">dynamicForm(onSubmitPromise + top, 750x550)</a>            
                 -
                 <a href="javascript:void(0)" onclick="test.largeDynamicForm(); return false;">dynamicForm(large + top)</a>            
+                -
+                <a href="javascript:void(0)" onclick="test.dynamicFormPromise(); return false;">dynamicFormPromise</a>
                 -
                 <a href="javascript:void(0)" onclick="test.dynamicFormWithFeedback(); return false;">dynamicFormWithFeedback</a>            
             </p>
