@@ -88,7 +88,7 @@ ul.uiTabsP li:hover{
 .uiDialog{
     border-color: var(--ui-desktop-boxBorderColor);
 	background-color: var(--ui-desktop-bodyBgColor);
-	box-shadow: 1px 1px 30px 0px rgba(255,255,255,0.1);	
+	box-shadow: 1px 1px 30px 0px rgba(255,255,255,18%);	
 }
         
 .uiDialogWrapper {
